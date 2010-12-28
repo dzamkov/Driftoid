@@ -1,6 +1,8 @@
 ﻿using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace Driftoid
@@ -15,7 +17,7 @@ namespace Driftoid
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.ColorMaterial);
-            this._TestTex = Starfield.CreateStarfieldTexture(256, 20, 0.2f, 0.5f, 0.01f, Color.Gray, new System.Random());
+            this._TestTex = Driftoid.CreateSolidTexture(256, 0.1f, Color.FromArgb(255, 100, 100), Color.FromArgb(255, 200, 200));
             
         }
 
@@ -26,17 +28,10 @@ namespace Driftoid
 
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            
-            GL.LoadIdentity();
-            GL.Scale(0.5f, 0.5f, 1.0f);
-            GL.Begin(BeginMode.Quads);
-            GL.Vertex2(-1.0f, -1.0f); GL.TexCoord2(0f, 0f);
-            GL.Vertex2(-1.0f, 1.0f); GL.TexCoord2(0f, 1f);
-            GL.Vertex2(1.0f, 1.0f); GL.TexCoord2(1f, 1f);
-            GL.Vertex2(1.0f, -1.0f); GL.TexCoord2(1f, 0f);
-            GL.End();
 
-            
+
+            new View(new Vector(-1.0, -1.0), this._TestRot, Math.Sin(this._TestRot) + 1.2).Setup((double)this.Width / (double)this.Height);
+            View.DrawTexturedSquare(new Vector(0.0, 0.0), 1.0);
 
             this.SwapBuffers();
         }
@@ -44,8 +39,10 @@ namespace Driftoid
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             double updatetime = e.Time;
+            this._TestRot += updatetime;
         }
 
+        private double _TestRot;
         private int _TestTex;
     }
 }

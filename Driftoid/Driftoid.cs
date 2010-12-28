@@ -26,7 +26,7 @@ namespace Driftoid
                 {
                     float actualsize = (float)TextureSize;
                     float actualborder = BorderSize * actualsize;
-                    g.Clear(Color.Transparent);
+                    g.Clear(Color.FromArgb(0, BorderColor.R, BorderColor.G, BorderColor.B));
                     using (Brush fillbrush = new SolidBrush(InteriorColor))
                     {
                         g.FillEllipse(fillbrush, new RectangleF(

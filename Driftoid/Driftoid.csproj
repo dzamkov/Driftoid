@@ -43,6 +43,8 @@
     <Compile Include="Driftoid.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="StarField.cs" />
+    <Compile Include="Vector.cs" />
+    <Compile Include="View.cs" />
     <Compile Include="Window.cs" />
   </ItemGroup>
   <ItemGroup>
