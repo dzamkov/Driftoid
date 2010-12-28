@@ -30,6 +30,11 @@ namespace Driftoid
             return new Vector(A.X + B.X, A.Y + B.Y);
         }
 
+        public static Vector operator *(Vector A, double B)
+        {
+            return new Vector(A.X * B, A.Y * B);
+        }
+
         public double X;
         public double Y;
     }

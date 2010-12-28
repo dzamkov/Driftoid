@@ -42,7 +42,8 @@
     <Compile Include="Area.cs" />
     <Compile Include="Driftoid.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="StarField.cs" />
+    <Compile Include="Starfield.cs" />
+    <Compile Include="Texture.cs" />
     <Compile Include="Vector.cs" />
     <Compile Include="View.cs" />
     <Compile Include="Window.cs" />
