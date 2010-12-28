@@ -18,13 +18,13 @@ namespace Driftoid
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.ColorMaterial);
-            this._TestTex = Driftoid.CreateSolidTexture(256, 0.1f, Color.FromArgb(255, 100, 100), Color.FromArgb(255, 200, 200));
+            this._TestTex = Driftoid.CreateSolidTexture(256, 0.1f, Color.FromArgb(255, 200, 200), Color.FromArgb(255, 240, 240));
             this._Starfield = Starfield.CreateDefault(512, 5);   
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            GL.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            GL.ClearColor(Starfield.Background);
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
             GL.Enable(EnableCap.Blend);

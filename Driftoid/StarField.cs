@@ -51,6 +51,11 @@ namespace Driftoid
         }
 
         /// <summary>
+        /// Suggested background color.
+        /// </summary>
+        public static readonly Color Background = Color.FromArgb(255, 0, 32, 0);
+
+        /// <summary>
         /// Draws the starfield with the specified view, reseting the current view.
         /// </summary>
         public void Draw(View View, double AspectRatio)

@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -30,15 +31,22 @@ namespace Driftoid
                     using (Brush fillbrush = new SolidBrush(InteriorColor))
                     {
                         g.FillEllipse(fillbrush, new RectangleF(
-                            0.0f, 0.0f, actualsize, actualsize));
+                            actualborder / 2.0f, actualborder / 2.0f, actualsize - actualborder, actualsize - actualborder));
 
                     }
-                    using (Pen borderpen = new Pen(BorderColor, actualborder))
+                    for (float f = 0.5f; f < actualborder - 0.5f; f += 0.5f)
                     {
-                        g.DrawEllipse(borderpen,
-                            new RectangleF(
-                                actualborder / 2, actualborder / 2,
-                                actualsize - actualborder, actualsize - actualborder));
+                        float eb = f;
+                        float vis = Math.Min(Math.Min(f, (actualborder - f)) / 4.0f, 1f);
+                        using (Pen borderpen = new Pen(
+                            Color.FromArgb((int)(vis * (float)BorderColor.A), BorderColor.R, BorderColor.G, BorderColor.B), 
+                            0.5f))
+                        {
+                            g.DrawEllipse(borderpen,
+                                new RectangleF(
+                                    eb, eb,
+                                    actualsize - eb * 2.0f, actualsize - eb * 2.0f));
+                        }
                     }
                 }
                 return Texture.Create(bm);
