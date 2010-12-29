@@ -11,11 +11,33 @@ namespace Driftoid
     /// </summary>
     public struct View
     {
-        public View(Vector Center, double Rotation, double Zoom)
+        public View(Vector Center, double Angle, double Zoom)
         {
             this.Center = Center;
-            this.Rotation = Rotation;
+            this.Angle = Angle;
             this.Zoom = Zoom;
+        }
+
+        /// <summary>
+        /// Converts a coordinate in view space ((0, 0) for top-left corner, (1, 1) for bottom-right corner)
+        /// to world coordiantes.
+        /// </summary>
+        public Vector ToWorld(double AspectRatio, Vector View)
+        {
+            if (AspectRatio > 1.0)
+            {
+                View.X *= AspectRatio;
+                View.X -= (AspectRatio - 1.0) / 2.0;
+            }
+            else
+            {
+                AspectRatio = 1.0 / AspectRatio;
+                View.Y *= AspectRatio;
+                View.Y -= (AspectRatio - 1.0) / 2.0;
+            }
+            View.Y = 1.0 - View.Y;
+            AfflineMatrix mat = AfflineMatrix.Rotation(-this.Angle) * (1.0 / this.Zoom);
+            return mat * (View * 2.0 - new Vector(1.0, 1.0)) + this.Center;
         }
 
         /// <summary>
@@ -38,7 +60,7 @@ namespace Driftoid
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
             GL.Scale(vsw, vsh, 1.0);
-            GL.Rotate(this.Rotation * 180 / Math.PI, 0.0, 0.0, 1.0);
+            GL.Rotate(this.Angle * 180 / Math.PI, 0.0, 0.0, 1.0);
             GL.Scale(this.Zoom, this.Zoom, 1.0);
             GL.Translate(-this.Center.X, -this.Center.Y, 0.0);
         }
@@ -58,9 +80,9 @@ namespace Driftoid
             GL.Begin(BeginMode.Quads);
             GL.Color4(1.0, 1.0, 1.0, 1.0);
             GL.Vertex2(-hs + fx, -hs + fy); GL.TexCoord2(0f, 0f);
-            GL.Vertex2(-hs + fx, hs + fy); GL.TexCoord2(0f, 1f);
+            GL.Vertex2(-hs + fx, hs + fy); GL.TexCoord2(1f, 0f);
             GL.Vertex2(hs + fx, hs + fy); GL.TexCoord2(1f, 1f);
-            GL.Vertex2(hs + fx, -hs + fy); GL.TexCoord2(1f, 0f);
+            GL.Vertex2(hs + fx, -hs + fy); GL.TexCoord2(0f, 1f);
             GL.End();
         }
 
@@ -72,7 +94,7 @@ namespace Driftoid
         /// <summary>
         /// The rotation of the view, in radians.
         /// </summary>
-        public double Rotation;
+        public double Angle;
 
         /// <summary>
         /// The zoom level of the view.

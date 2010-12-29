@@ -36,7 +36,7 @@ namespace Driftoid
 
         public static Vector operator -(Vector A, Vector B)
         {
-            return new Vector(A.X + B.X, A.Y + B.Y);
+            return new Vector(A.X - B.X, A.Y - B.Y);
         }
 
         public static Vector operator +(Vector A, Vector B)
@@ -51,5 +51,52 @@ namespace Driftoid
 
         public double X;
         public double Y;
+    }
+
+    /// <summary>
+    /// A 2d matrix that specifies a scale/rotation/skew transformation.
+    /// </summary>
+    public struct AfflineMatrix
+    {
+        public AfflineMatrix(
+            double M11, double M21,
+            double M12, double M22)
+        {
+            this.M11 = M11;
+            this.M21 = M21;
+            this.M12 = M12;
+            this.M22 = M22;
+        }
+
+        /// <summary>
+        /// Creates a rotation matrix with the specified angle.
+        /// </summary>
+        public static AfflineMatrix Rotation(double Angle)
+        {
+            double cosang = Math.Cos(Angle);
+            double sinang = Math.Sin(Angle);
+            return new AfflineMatrix(
+                cosang, -sinang,
+                sinang, cosang);
+        }
+
+        public static Vector operator *(AfflineMatrix Matrix, Vector Vector)
+        {
+            return new Vector(
+                Matrix.M11 * Vector.X + Matrix.M21 * Vector.Y,
+                Matrix.M12 * Vector.X + Matrix.M22 * Vector.Y);
+        }
+
+        public static AfflineMatrix operator *(AfflineMatrix Matrix, double Amount)
+        {
+            return new AfflineMatrix(
+                Matrix.M11 * Amount, Matrix.M21 * Amount,
+                Matrix.M12 * Amount, Matrix.M22 * Amount);
+        }
+
+        public double M11;
+        public double M21;
+        public double M12;
+        public double M22;
     }
 }

@@ -28,7 +28,7 @@ namespace Driftoid
             this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Iron, 0.0, -3.0));
             this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Sulfur, -2.0, -4.0));
             this._Area.Spawn(new NucleusDriftoid(
-                this._Player = new Player(Color.FromArgb(255, 255, 0)), new DriftoidState(new Vector(-4.0, 1.0))));
+                this._Player = new Player(Color.FromArgb(255, 0, 0)), new DriftoidState(new Vector(-4.0, 1.0))));
             this._Starfield = Starfield.CreateDefault(512, 5);   
         }
 
@@ -50,6 +50,12 @@ namespace Driftoid
             {
                 d.Draw();
             }
+
+            Vector mousepos = new Vector(
+                (double)this.Mouse.X / (double)this.Width,
+                (double)this.Mouse.Y / (double)this.Height);
+            Vector realpos = v.ToWorld(aspect, mousepos);
+            View.DrawTexturedSquare(realpos, 1.0);
 
             this.SwapBuffers();
         }

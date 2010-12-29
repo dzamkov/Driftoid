@@ -73,7 +73,7 @@ namespace Driftoid
                     GL.LoadIdentity();
                     GL.Scale(1.0 / l.Scale, 1.0 / l.Scale, 1.0);
                     GL.Translate(View.Center.X / 2.0 * l.Offset, -View.Center.Y / 2.0 * l.Offset, 0.0);
-                    GL.Rotate(View.Rotation * 180 / Math.PI, 0.0, 0.0, 1.0);
+                    GL.Rotate(View.Angle * 180 / Math.PI, 0.0, 0.0, 1.0);
                     if (AspectRatio > 1.0)
                     {
                         GL.Scale(AspectRatio / zoom, 1.0 / zoom, 1.0);
