@@ -90,7 +90,25 @@ namespace Driftoid
             /// </summary>
             public int CreateTexture()
             {
-                return Driftoid.CreateSolidTexture(256, 0.15f, this.BorderColor, this.InteriorColor);
+                int texsize = 256;
+                using (Bitmap bm = new Bitmap(texsize, texsize))
+                {
+                    using (Graphics g = Graphics.FromImage(bm))
+                    {
+                        float actualsize = (float)texsize;
+                        Driftoid.DrawSolid(g, texsize, 0.15f, this.BorderColor, this.InteriorColor);
+                        using (Font f = new Font(FontFamily.GenericSerif, actualsize * 0.4f))
+                        {
+                            using(Brush b = new SolidBrush(this.TextColor))
+                            {
+                                g.DrawString(this.Text, f, b, new RectangleF(
+                                    actualsize * 0.3f, actualsize * 0.3f, actualsize * 0.4f, actualsize * 0.4f));
+
+                            }
+                        }
+                    }
+                    return Texture.Create(bm);
+                }
             }
         }
 

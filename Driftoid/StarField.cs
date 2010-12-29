@@ -72,15 +72,15 @@ namespace Driftoid
                 {
                     GL.LoadIdentity();
                     GL.Scale(1.0 / l.Scale, 1.0 / l.Scale, 1.0);
-                    GL.Translate(-View.Center.Y / 2.0 * l.Offset, View.Center.X / 2.0 * l.Offset, 0.0);
-                    GL.Rotate(-View.Rotation * 180 / Math.PI, 0.0, 0.0, 1.0);
+                    GL.Translate(View.Center.X / 2.0 * l.Offset, -View.Center.Y / 2.0 * l.Offset, 0.0);
+                    GL.Rotate(View.Rotation * 180 / Math.PI, 0.0, 0.0, 1.0);
                     if (AspectRatio > 1.0)
                     {
-                        GL.Scale(1.0 / zoom, AspectRatio / zoom, 1.0);
+                        GL.Scale(AspectRatio / zoom, 1.0 / zoom, 1.0);
                     }
                     else
                     {
-                        GL.Scale(1.0 / zoom / AspectRatio, 1.0 / zoom, 1.0);
+                        GL.Scale(1.0 / zoom, 1.0 / zoom / AspectRatio, 1.0);
                     }
                     GL.Translate(-0.5, -0.5, 1.0);
 
@@ -88,9 +88,9 @@ namespace Driftoid
                     GL.Begin(BeginMode.Quads);
                     GL.Color4(1.0, 1.0, 1.0, visibility);
                     GL.Vertex2(-1.0f, -1.0f); GL.TexCoord2(0f, 0f);
-                    GL.Vertex2(-1.0f, 1.0f); GL.TexCoord2(0f, 1f);
+                    GL.Vertex2(-1.0f, 1.0f); GL.TexCoord2(1f, 0f);
                     GL.Vertex2(1.0f, 1.0f); GL.TexCoord2(1f, 1f);
-                    GL.Vertex2(1.0f, -1.0f); GL.TexCoord2(1f, 0f);
+                    GL.Vertex2(1.0f, -1.0f); GL.TexCoord2(0f, 1f);
                     GL.End();
                 }
             }

@@ -46,9 +46,9 @@ namespace Driftoid
             GL.Rotate(this._MotionState.Angle, 0.0, 0.0, 1.0);
             GL.Begin(BeginMode.Quads);
             GL.Vertex2(-1.0f, -1.0f); GL.TexCoord2(0f, 0f);
-            GL.Vertex2(-1.0f, 1.0f); GL.TexCoord2(0f, 1f);
+            GL.Vertex2(-1.0f, 1.0f); GL.TexCoord2(1f, 0f);
             GL.Vertex2(1.0f, 1.0f); GL.TexCoord2(1f, 1f);
-            GL.Vertex2(1.0f, -1.0f); GL.TexCoord2(1f, 0f);
+            GL.Vertex2(1.0f, -1.0f); GL.TexCoord2(0f, 1f);
             GL.End();
             GL.PopMatrix();
         }
@@ -66,20 +66,18 @@ namespace Driftoid
             {
                 using (Graphics g = Graphics.FromImage(bm))
                 {
-                    float dummy;
-                    DrawSolid(g, TextureSize, BorderSize, BorderColor, InteriorColor, out dummy, out dummy);
+                    DrawSolid(g, TextureSize, BorderSize, BorderColor, InteriorColor);
                 }
                 return Texture.Create(bm);
             }
         }
 
         /// <summary>
-        /// Draws a blank circle to the specified graphics context. Returns measurements for the inside of the circle.
+        /// Draws a blank circle to the specified graphics context.
         /// </summary>
         public static void DrawSolid(
             Graphics Context, int Size, float BorderSize, 
-            Color BorderColor, Color InteriorColor,
-            out float InteriorStart, out float InteriorSize)
+            Color BorderColor, Color InteriorColor)
         {
             float actualsize = (float)Size;
             float actualborder = BorderSize * actualsize;
@@ -104,8 +102,6 @@ namespace Driftoid
                             actualsize - eb * 2.0f, actualsize - eb * 2.0f));
                 }
             }
-            InteriorStart = BorderSize;
-            InteriorSize = 1.0f - BorderSize * 2.0f;
         }
 
         /// <summary>
