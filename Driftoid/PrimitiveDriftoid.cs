@@ -97,12 +97,16 @@ namespace Driftoid
                     {
                         float actualsize = (float)texsize;
                         Driftoid.DrawSolid(g, texsize, 0.15f, this.BorderColor, this.InteriorColor);
-                        using (Font f = new Font(FontFamily.GenericSerif, actualsize * 0.4f))
+                        using (Font f = new Font(_GetFont(), actualsize * 0.4f, FontStyle.Bold, GraphicsUnit.Pixel))
                         {
                             using(Brush b = new SolidBrush(this.TextColor))
                             {
-                                g.DrawString(this.Text, f, b, new RectangleF(
-                                    actualsize * 0.3f, actualsize * 0.3f, actualsize * 0.4f, actualsize * 0.4f));
+                                SizeF strsize = g.MeasureString(this.Text, f);
+
+                                // Try centering the text in the bubble
+                                float x = actualsize * 0.5f - strsize.Width * 0.5f;
+                                float y = actualsize * 0.5f - strsize.Height * 0.5f;
+                                g.DrawString(this.Text, f, b, x, y);
 
                             }
                         }
@@ -111,6 +115,35 @@ namespace Driftoid
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the font family with the specified name.
+        /// </summary>
+        public static FontFamily GetFont(string Name)
+        {
+            foreach (FontFamily ff in FontFamily.Families)
+            {
+                if (ff.Name == Name)
+                {
+                    return ff;
+                }
+            }
+            return null;
+        }
+
+        private static FontFamily _GetFont()
+        {
+            if (_Font == null)
+            {
+                _Font = GetFont("Verdana");
+            }
+            return _Font;
+        }
+
+        /// <summary>
+        /// The prefered font for primitive driftoids.
+        /// </summary>
+        private static FontFamily _Font;
 
         /// <summary>
         /// Visual properties of the primitive types.
@@ -139,6 +172,18 @@ namespace Driftoid
                 BorderColor = Color.FromArgb(0, 50, 200),
                 InteriorColor = Color.FromArgb(50, 100, 200),
                 TextColor = Color.FromArgb(0, 50, 200)
+            }, new _Visual() 
+            {
+                Text = "Fe",
+                BorderColor = Color.FromArgb(200, 200, 200),
+                InteriorColor = Color.FromArgb(100, 100, 100),
+                TextColor = Color.FromArgb(220, 220, 220)
+            }, new _Visual()
+            {
+                Text = "S",
+                BorderColor = Color.FromArgb(200, 200, 0),
+                InteriorColor = Color.FromArgb(220, 220, 100),
+                TextColor = Color.FromArgb(180, 180, 0)
             }
         };
 

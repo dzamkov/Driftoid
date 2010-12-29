@@ -25,7 +25,8 @@ namespace Driftoid
             this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Nitrogen, 3.0, 0.0));
             this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Oxygen, 0.0, 3.0));
             this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Hydrogen, 2.0, 4.0));
-
+            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Iron, 0.0, -3.0));
+            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Sulfur, -2.0, -4.0));
             this._Starfield = Starfield.CreateDefault(512, 5);   
         }
 
