@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Area.cs" />
     <Compile Include="Driftoid.cs" />
+    <Compile Include="PrimitiveDriftoid.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Starfield.cs" />
     <Compile Include="Texture.cs" />

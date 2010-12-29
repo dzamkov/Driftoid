@@ -15,10 +15,17 @@ namespace Driftoid
     {
         public Window() : base(640, 480, GraphicsMode.Default, "Driftoid")
         {
+            this.WindowState = WindowState.Maximized;
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.ColorMaterial);
-            this._TestTex = Driftoid.CreateSolidTexture(256, 0.1f, Color.FromArgb(255, 200, 200), Color.FromArgb(255, 240, 240));
+
+            this._Area = new Area();
+            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Carbon, 0.0, 0.0));
+            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Nitrogen, 3.0, 0.0));
+            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Oxygen, 0.0, 3.0));
+            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Hydrogen, 2.0, 4.0));
+
             this._Starfield = Starfield.CreateDefault(512, 5);   
         }
 
@@ -34,8 +41,12 @@ namespace Driftoid
             double aspect = (double)this.Width / (double)this.Height;
             this._Starfield.Draw(v, aspect);
             v.Setup(aspect);
-            Texture.Bind2D(this._TestTex);
-            View.DrawTexturedSquare(new Vector(0.0, 0.0), 1.0);
+
+            Driftoid.SetupDraw();
+            foreach (Driftoid d in this._Area.Driftoids)
+            {
+                d.Draw();
+            }
 
             this.SwapBuffers();
         }
@@ -43,6 +54,8 @@ namespace Driftoid
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             double updatetime = e.Time;
+            this._Area.Update(updatetime);
+
             if (this.Keyboard[Key.Q]) this._Zoom *= 0.99;
             if (this.Keyboard[Key.E]) this._Zoom *= 1.01;
             if (this.Keyboard[Key.R]) this._Rot += updatetime;
@@ -64,6 +77,6 @@ namespace Driftoid
         private Vector _Pos;
         private double _Zoom = 0.1;
         private double _Rot = 0.0;
-        private int _TestTex;
+        private Area _Area;
     }
 }
