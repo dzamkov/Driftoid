@@ -12,10 +12,12 @@ namespace Driftoid
     /// </summary>
     public abstract class Driftoid
     {
-        public Driftoid(double Radius, DriftoidState MotionState)
+        public Driftoid(double Radius, Player Player, double Mass, DriftoidState MotionState)
         {
             this._Radius = Radius;
             this._MotionState = MotionState;
+            this._Player = Player;
+            this._Mass = Mass;
         }
 
         /// <summary>
@@ -126,8 +128,22 @@ namespace Driftoid
             }
         }
 
+        /// <summary>
+        /// Gets the player that this driftoid "belongs" to. This is null for neutral driftoids or driftoids with
+        /// a complex alliance.
+        /// </summary>
+        public Player Player
+        {
+            get
+            {
+                return this._Player;
+            }
+        }
+
         private double _Radius;
+        private double _Mass;
         private DriftoidState _MotionState;
+        private Player _Player;
     }
 
     /// <summary>

@@ -23,7 +23,7 @@ namespace Driftoid
     public class PrimitiveDriftoid : Driftoid
     {
         public PrimitiveDriftoid(PrimitiveDriftoidType Type, DriftoidState MotionState)
-            : base(1.0, MotionState)
+            : base(1.0, null, 1.0, MotionState)
         {
             this._Type = Type;
         }
