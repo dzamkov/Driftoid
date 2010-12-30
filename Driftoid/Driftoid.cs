@@ -140,9 +140,17 @@ namespace Driftoid
             }
         }
 
+        /// <summary>
+        /// Applies a force, in mass * unit/second^2, to the driftoid.
+        /// </summary>
+        internal void _ApplyForce(double Time, Vector Force)
+        {
+            this._MotionState.ApplyForce(Time, Force * (1.0 / this._Mass));
+        }
+
         private double _Radius;
         private double _Mass;
-        private DriftoidState _MotionState;
+        internal DriftoidState _MotionState;
         private Player _Player;
     }
 
@@ -173,6 +181,30 @@ namespace Driftoid
             this.Velocity = Velocity;
             this.Angle = Angle;
             this.AngularVelocity = AngularVelocity;
+        }
+
+        /// <summary>
+        /// Updates the motion state.
+        /// </summary>
+        /// <param name="Time">Time in seconds to update.</param>
+        /// <param name="LinearFriction">Factor between 0.0 and 1.0 that indicates how much velocity
+        /// remains over a second.</param>
+        /// <param name="AngularFriction">Factor between 0.0 and 1.0 that indicates how much angular velocity
+        /// remains over a second.</param>
+        public void Update(double Time, double LinearFriction, double AngularFriction)
+        {
+            this.Position += this.Velocity * Time;
+            this.Angle += this.AngularVelocity * Time;
+            this.Velocity *= Math.Pow(LinearFriction, Time);
+            this.AngularVelocity *= Math.Pow(AngularFriction, Time);
+        }
+
+        /// <summary>
+        /// Applies a force, in units/second^2.
+        /// </summary>
+        public void ApplyForce(double Time, Vector Force)
+        {
+            this.Velocity += Force * Time;
         }
 
         /// <summary>

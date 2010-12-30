@@ -59,5 +59,43 @@ namespace Driftoid
         }
 
         private static readonly Dictionary<Player, int> _Textures = new Dictionary<Player, int>();
+
+        /// <summary>
+        /// Gets the maximum force magnitude the nucleus can apply.
+        /// </summary>
+        public double MaxForce
+        {
+            get
+            {
+                return 3.0;
+            }
+        }
+
+        /// <summary>
+        /// Gets the radius of the area of influence of this nucleus.
+        /// </summary>
+        public double MaxDistance
+        {
+            get
+            {
+                return 20.0;
+            }
+        }
+    }
+
+    /// <summary>
+    /// A player-wide command that causes all the players nuclei to position (by applying force) another driftoid.
+    /// </summary>
+    public struct DriftCommand
+    {
+        /// <summary>
+        /// The driftoid to be moved.
+        /// </summary>
+        public Driftoid TargetDriftoid;
+
+        /// <summary>
+        /// The position the driftoid should be moved to.
+        /// </summary>
+        public Vector TargetPosition;
     }
 }

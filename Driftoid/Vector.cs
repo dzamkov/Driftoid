@@ -17,6 +17,29 @@ namespace Driftoid
         }
 
         /// <summary>
+        /// Gets the square of the length of this vector. This function is quicker to compute than the actual length
+        /// because it avoids a square root, which may be costly.
+        /// </summary>
+        public double SquareLength
+        {
+            get
+            {
+                return this.X * this.X + this.Y * this.Y;
+            }
+        }
+
+        /// <summary>
+        /// Gets the length of the vector.
+        /// </summary>
+        public double Length
+        {
+            get
+            {
+                return Math.Sqrt(this.SquareLength);
+            }
+        }
+
+        /// <summary>
         /// Creates a unit vector for the specified angle.
         /// </summary>
         public static Vector Unit(double Angle)
@@ -37,6 +60,11 @@ namespace Driftoid
         public static Vector operator -(Vector A, Vector B)
         {
             return new Vector(A.X - B.X, A.Y - B.Y);
+        }
+
+        public static Vector operator -(Vector A)
+        {
+            return new Vector(-A.X, -A.Y);
         }
 
         public static Vector operator +(Vector A, Vector B)
