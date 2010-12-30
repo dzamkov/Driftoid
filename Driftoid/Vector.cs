@@ -47,6 +47,14 @@ namespace Driftoid
             return new Vector(Math.Sin(Angle), Math.Cos(Angle));
         }
 
+        /// <summary>
+        /// Gets the dot product of two vectors.
+        /// </summary>
+        public static double Dot(Vector A, Vector B)
+        {
+            return A.X * B.X + A.Y * B.Y;
+        }
+
         public static implicit operator Vector2(Vector Vector)
         {
             return new Vector2((float)Vector.X, (float)Vector.Y);

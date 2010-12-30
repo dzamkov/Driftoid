@@ -148,6 +148,32 @@ namespace Driftoid
             this._MotionState.ApplyForce(Time, Force * (1.0 / this._Mass));
         }
 
+        /// <summary>
+        /// Responds to the collision of two driftoids.
+        /// </summary>
+        internal static void _CollisionResponse(Driftoid A, Driftoid B, Vector Difference, double Distance)
+        {
+            double trad = A.Radius + B.Radius;
+            Vector ncol = Difference * (1.0 / Difference.Length);
+            double pen = trad - Distance;
+            double ima = 1.0 / A._Mass;
+            double imb = 1.0 / B._Mass;
+            Vector sep = ncol * (pen / (ima + imb));
+            A._MotionState.Position -= sep * ima;
+            B._MotionState.Position += sep * imb;
+
+            Vector vcol = B._MotionState.Velocity - A._MotionState.Velocity;
+            double impact = Vector.Dot(vcol, ncol);
+            if (impact < 0.0)
+            {
+                double cor = 0.95;
+                double j = -(1.0f + cor) * (impact) / (ima + imb);
+                Vector impulse = ncol * j;
+                A._MotionState.Velocity -= impulse * ima;
+                B._MotionState.Velocity += impulse * imb;
+            }
+        }
+
         private double _Radius;
         private double _Mass;
         internal DriftoidState _MotionState;

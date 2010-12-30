@@ -74,6 +74,23 @@ namespace Driftoid
             {
                 dr._MotionState.Update(Time, 0.7, 0.8);
             }
+
+            // Collision handling
+            for (int idra = 0; idra < this._Driftoids.Count; idra++)
+            {
+                for (int idrb = idra + 1; idrb < this._Driftoids.Count; idrb++)
+                {
+                    Driftoid dra = this._Driftoids[idra];
+                    Driftoid drb = this._Driftoids[idrb];
+                    double trad = dra.Radius + drb.Radius;
+                    Vector dif = drb.MotionState.Position - dra.MotionState.Position;
+                    double dis = dif.Length;
+                    if (dis <= trad)
+                    {
+                        Driftoid._CollisionResponse(dra, drb, dif, dis);
+                    }
+                }
+            }
         }
 
         /// <summary>
