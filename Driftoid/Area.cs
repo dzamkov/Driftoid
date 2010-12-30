@@ -57,14 +57,7 @@ namespace Driftoid
                     DriftCommand dc;
                     if (this._DriftCommands.TryGetValue(ndr.Player, out dc))
                     {
-                        double dis = (dc.TargetDriftoid.MotionState.Position - ndr.MotionState.Position).Length;
-                        if (dis < ndr.MaxDistance)
-                        {
-                            Vector vec = (dc.TargetPosition - dc.TargetDriftoid.MotionState.Position);
-                            vec = vec * (ndr.MaxForce / vec.Length);
-                            dc.TargetDriftoid._ApplyForce(Time, vec);
-                            ndr._ApplyForce(Time, -vec);
-                        }
+                        ndr._Pull(Time, dc.TargetDriftoid, dc.TargetPosition);
                     }
                 }
             }
@@ -83,11 +76,43 @@ namespace Driftoid
                     Driftoid dra = this._Driftoids[idra];
                     Driftoid drb = this._Driftoids[idrb];
                     double trad = dra.Radius + drb.Radius;
-                    Vector dif = drb.MotionState.Position - dra.MotionState.Position;
+                    Vector dif = drb.Position - dra.Position;
                     double dis = dif.Length;
+                    LinkedDriftoid ldra = dra as LinkedDriftoid;
+                    LinkedDriftoid ldrb = drb as LinkedDriftoid;
+                    if (ldra != null && ldrb != null)
+                    {
+                        if (ldra.LinkedParent == ldrb)
+                        {
+                            LinkedDriftoid._CorrectLink(ldra, ldrb, 0, dif, dis);
+                            continue;
+                        }
+                        if (ldrb.LinkedParent == ldra)
+                        {
+                            LinkedDriftoid._CorrectLink(ldrb, ldra, 0, -dif, dis);
+                            continue;
+                        }
+                    }
+
                     if (dis <= trad)
                     {
-                        Driftoid._CollisionResponse(dra, drb, dif, dis);
+                        // Try link
+                        if (ldra != null && ldrb != null)
+                        {
+                            LinkedDriftoid._Link(ldra, ldrb);
+                            if (ldra.LinkedParent == ldrb)
+                            {
+                                LinkedDriftoid._CorrectLink(ldra, ldrb, 0, dif, dis);
+                                continue;
+                            }
+                            if (ldrb.LinkedParent == ldra)
+                            {
+                                LinkedDriftoid._CorrectLink(ldrb, ldra, 0, dif, dis);
+                                continue;
+                            }
+                        }
+
+                        Driftoid._CollisionResponse(dra, drb, dif, dis, 1.0);
                     }
                 }
             }

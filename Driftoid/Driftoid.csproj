@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Area.cs" />
     <Compile Include="Driftoid.cs" />
+    <Compile Include="LinkedDriftoid.cs" />
     <Compile Include="NucleusDriftoid.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PrimitiveDriftoid.cs" />

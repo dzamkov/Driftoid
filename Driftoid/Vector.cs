@@ -48,6 +48,34 @@ namespace Driftoid
         }
 
         /// <summary>
+        /// Gets the angle of this vector.
+        /// </summary>
+        public double Angle
+        {
+            get
+            {
+                return Math.Atan2(this.Y, this.X);
+            }
+        }
+
+        /// <summary>
+        /// Gets if the given angle is an interior angle of the two specified angles. All angles must be
+        /// normalized.
+        /// </summary>
+        public static bool AngleBetween(double Angle, double LowAngle, double HighAngle)
+        {
+            if (LowAngle < HighAngle && Angle >= LowAngle && Angle <= HighAngle)
+            {
+                return true;
+            }
+            if (LowAngle > HighAngle && (Angle >= LowAngle || Angle <= HighAngle))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Gets the dot product of two vectors.
         /// </summary>
         public static double Dot(Vector A, Vector B)

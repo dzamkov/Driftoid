@@ -7,10 +7,15 @@ namespace Driftoid
     /// <summary>
     /// A high-mass player-controlled driftoid that can apply force to other driftoids.
     /// </summary>
-    public class NucleusDriftoid : Driftoid
+    public class NucleusDriftoid : LinkedDriftoid
     {
         public NucleusDriftoid(Player Player, DriftoidState MotionState)
-            : base(1.0, Player, 20.0, MotionState)
+            : base(new DriftoidConstructorInfo()
+            {
+                Mass = 20.0,
+                Player = Player,
+                MotionState = MotionState
+            })
         {
 
         }
@@ -67,7 +72,7 @@ namespace Driftoid
         {
             get
             {
-                return 3.0;
+                return 9.0;
             }
         }
 
@@ -79,6 +84,35 @@ namespace Driftoid
             get
             {
                 return 20.0;
+            }
+        }
+
+        public override bool AllowLink(int Index, LinkedDriftoid PossibleChild)
+        {
+            return true;    
+        }
+
+        public override bool AllowChildLink(int Index, LinkedDriftoid PossibleChild, LinkedDriftoid Descendant)
+        {
+            return true;
+        }
+
+        internal void _Pull(double Time, Driftoid Target, Vector Position)
+        {
+            double dis = (Target.Position - this.Position).Length;
+            if (dis < this.MaxDistance)
+            {
+                Vector vel = Target.MotionState.Velocity;
+                double vellen = vel.Length;
+                vel = vel * vellen;
+
+                Vector gpos = Target.Position + vel * (Target.Mass / this.MaxForce);
+                Vector vec = (Position - gpos);
+                double mdis = vec.Length;
+                Vector nvec = vec * (1.0 / mdis);
+                vec = nvec * this.MaxForce;
+                Target._ApplyForce(Time, vec);
+                this._ApplyForce(Time, -vec);
             }
         }
     }

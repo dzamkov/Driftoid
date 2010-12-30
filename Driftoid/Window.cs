@@ -22,11 +22,11 @@ namespace Driftoid
 
             this._Area = new Area();
             this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Carbon, 0.0, 0.0));
-            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Nitrogen, 3.0, 0.0));
+            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Carbon, 3.0, 0.0));
             this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Oxygen, 0.0, 3.0));
             this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Hydrogen, 2.0, 4.0));
-            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Iron, 0.0, -3.0));
-            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Sulfur, -2.0, -4.0));
+            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Hydrogen, 0.0, -3.0));
+            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Hydrogen, -2.0, -4.0));
             this._Area.Spawn(new NucleusDriftoid(
                 this._Player = new Player(Color.FromArgb(255, 0, 0)), new DriftoidState(new Vector(-4.0, 1.0))));
             this._Starfield = Starfield.CreateDefault(512, 5);

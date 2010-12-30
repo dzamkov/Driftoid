@@ -12,12 +12,12 @@ namespace Driftoid
     /// </summary>
     public abstract class Driftoid
     {
-        public Driftoid(double Radius, Player Player, double Mass, DriftoidState MotionState)
+        public Driftoid(DriftoidConstructorInfo Info)
         {
-            this._Radius = Radius;
-            this._MotionState = MotionState;
-            this._Player = Player;
-            this._Mass = Mass;
+            this._Radius = Info.Radius;
+            this._MotionState = Info.MotionState;
+            this._Player = Info.Player;
+            this._Mass = Info.Mass;
         }
 
         /// <summary>
@@ -129,6 +129,17 @@ namespace Driftoid
         }
 
         /// <summary>
+        /// Gets the current position of the driftoid.
+        /// </summary>
+        public Vector Position
+        {
+            get
+            {
+                return this._MotionState.Position;
+            }
+        }
+
+        /// <summary>
         /// Gets the player that this driftoid "belongs" to. This is null for neutral driftoids or driftoids with
         /// a complex alliance.
         /// </summary>
@@ -137,6 +148,17 @@ namespace Driftoid
             get
             {
                 return this._Player;
+            }
+        }
+
+        /// <summary>
+        /// Gets the mass of the driftoid.
+        /// </summary>
+        public double Mass
+        {
+            get
+            {
+                return this._Mass;
             }
         }
 
@@ -151,14 +173,14 @@ namespace Driftoid
         /// <summary>
         /// Responds to the collision of two driftoids.
         /// </summary>
-        internal static void _CollisionResponse(Driftoid A, Driftoid B, Vector Difference, double Distance)
+        internal static void _CollisionResponse(Driftoid A, Driftoid B, Vector Difference, double Distance, double Factor)
         {
             double trad = A.Radius + B.Radius;
             Vector ncol = Difference * (1.0 / Difference.Length);
             double pen = trad - Distance;
             double ima = 1.0 / A._Mass;
             double imb = 1.0 / B._Mass;
-            Vector sep = ncol * (pen / (ima + imb));
+            Vector sep = ncol * (pen / (ima + imb)) * Factor;
             A._MotionState.Position -= sep * ima;
             B._MotionState.Position += sep * imb;
 
@@ -166,7 +188,7 @@ namespace Driftoid
             double impact = Vector.Dot(vcol, ncol);
             if (impact < 0.0)
             {
-                double cor = 0.95;
+                double cor = 0.5;
                 double j = -(1.0f + cor) * (impact) / (ima + imb);
                 Vector impulse = ncol * j;
                 A._MotionState.Velocity -= impulse * ima;
@@ -252,5 +274,31 @@ namespace Driftoid
         /// Spin of the driftoid in radians per second.
         /// </summary>
         public double AngularVelocity;
+    }
+
+    /// <summary>
+    /// Parameter for construction of driftoids.
+    /// </summary>
+    public class DriftoidConstructorInfo
+    {
+        /// <summary>
+        /// Initial motion state of the driftoid.
+        /// </summary>
+        public DriftoidState MotionState;
+
+        /// <summary>
+        /// The initial mass of the driftoid.
+        /// </summary>
+        public double Mass = 1.0;
+
+        /// <summary>
+        /// The initial radius of the driftoid.
+        /// </summary>
+        public double Radius = 1.0;
+
+        /// <summary>
+        /// The initial commanding player, or null for neutral.
+        /// </summary>
+        public Player Player = null;
     }
 }

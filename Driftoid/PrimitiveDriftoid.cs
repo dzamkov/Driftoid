@@ -20,10 +20,13 @@ namespace Driftoid
     /// <summary>
     /// A primitive (simple, building block) driftoid.
     /// </summary>
-    public class PrimitiveDriftoid : Driftoid
+    public class PrimitiveDriftoid : LinkedDriftoid
     {
         public PrimitiveDriftoid(PrimitiveDriftoidType Type, DriftoidState MotionState)
-            : base(1.0, null, 1.0, MotionState)
+            : base(new DriftoidConstructorInfo()
+            {
+                MotionState = MotionState
+            })
         {
             this._Type = Type;
         }
