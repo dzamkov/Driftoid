@@ -62,6 +62,32 @@ namespace Driftoid
                 return Texture.Create(bm);
             }
         }
+
+        /// <summary>
+        /// A function with a purpose equivalent to Drawer.
+        /// </summary>
+        public delegate Color DrawerHandler(Vector Point);
+
+        /// <summary>
+        /// Creates a handler from a function.
+        /// </summary>
+        public static Drawer Create(DrawerHandler Handler)
+        {
+            return new _FuncDrawer()
+            {
+                Handler = Handler
+            };
+        }
+
+        private sealed class _FuncDrawer : Drawer
+        {
+            public override Color AtPoint(Vector Point)
+            {
+                return this.Handler(Point);
+            }
+
+            public DrawerHandler Handler;
+        }
     }
 
     /// <summary>

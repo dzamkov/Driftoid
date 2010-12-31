@@ -1,4 +1,7 @@
-﻿using System;
+﻿using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 
 namespace Driftoid
@@ -94,8 +97,123 @@ namespace Driftoid
         /// </summary>
         public static void DrawLinker(LinkedDriftoid Parent, LinkedDriftoid Child)
         {
+            _LinkerKey lk = new _LinkerKey()
+            {
+                ParentRadius = Parent.Radius,
+                ChildRadius = Child.Radius,
+                ChildBorderWidth = Child.BorderWidth
+            };
+            _LinkerTexture lt;
+            if (!_LinkerTextures.TryGetValue(lk, out lt))
+            {
+                _LinkerTextures[lk] = lt = _CreateTexture(lk);
+            }
 
+            Vector dif = Parent.Position - Child.Position;
+
+            Texture.Bind2D(lt.Texture);
+            GL.PushMatrix();
+            GL.Translate(Child.Position.X, Child.Position.Y, 0.0);
+            GL.Rotate(dif.Angle * 180 / Math.PI, 0.0, 0.0, 1.0);
+            GL.Translate(-lt.ChildCenterOffset, 0.0, 0.0);
+            GL.Scale(lt.Size.X / 2.0, lt.Size.Y / 2.0, 1.0);
+            GL.Translate(1.0, 0.0, 0.0);
+            GL.Begin(BeginMode.Quads);
+            GL.Vertex2(-1.0f, -1.0f); GL.TexCoord2(0f, 0f);
+            GL.Vertex2(-1.0f, 1.0f); GL.TexCoord2(1f, 0f);
+            GL.Vertex2(1.0f, 1.0f); GL.TexCoord2(1f, 1f);
+            GL.Vertex2(1.0f, -1.0f); GL.TexCoord2(0f, 1f);
+            GL.End();
+            GL.PopMatrix();
         }
+
+        /// <summary>
+        /// A key used to get a linker texture.
+        /// </summary>
+        private struct _LinkerKey
+        {
+            public double ParentRadius;
+            public double ChildRadius;
+            public double ChildBorderWidth;
+        }
+        private struct _LinkerTexture
+        {
+            public int Texture;
+            public Vector Size;
+            public double ChildCenterOffset;
+        }
+
+        /// <summary>
+        /// Creates a linker texture for the given key.
+        /// </summary>
+        private static _LinkerTexture _CreateTexture(_LinkerKey Key)
+        {
+            double grabberlength = 1.0;
+            double grabberwidth = Key.ChildBorderWidth;
+            double handlelength = 0.4;
+            double handlewidth = 0.1;
+            double grabbermaxangle = grabberlength / (Key.ChildRadius * 2.0);
+
+            double maxheight = handlewidth / 2.0;
+            double maxgrabberwidth = Key.ChildBorderWidth;
+            if (grabbermaxangle > Math.PI / 2.0)
+            {
+                maxheight = Key.ChildRadius;
+                maxgrabberwidth = Key.ChildRadius * (1.0 - Math.Cos(grabbermaxangle));
+            }
+            else
+            {
+                maxgrabberwidth = Key.ChildRadius * (1.0 + Math.Cos(grabbermaxangle) * grabberwidth);
+                double posheight = Math.Sin(grabbermaxangle) * Key.ChildRadius;
+                if (posheight > maxheight)
+                {
+                    maxheight = posheight;
+                }
+            }
+
+            Vector size = new Vector(maxgrabberwidth + handlelength, maxheight * 2.0);
+            double grabbercenter = -Key.ChildRadius + maxgrabberwidth;
+
+            double trans = Key.ChildRadius - grabberwidth;
+
+            double midcenter = 0.5 * size.Y;
+            int tex = Drawer.Create(delegate(Vector Point)
+            {
+                Point.X *= size.X;
+                Point.Y *= size.Y;
+
+                Vector grabberdif = (Point - new Vector(grabbercenter, midcenter));
+                double grabberdis = grabberdif.Length;
+                double grabberang = grabberdif.Angle;
+
+                if (grabberdis < trans)
+                {
+                    return Color.Transparent;
+                }
+                if (grabberdis < Key.ChildRadius)
+                {
+                    double angdif = Math.Abs(grabberang);
+                    if (angdif < grabbermaxangle)
+                    {
+                        return Color.RGBA(1.0, 1.0, 1.0, 1.0);
+                    }
+                }
+                if (Math.Abs(Point.Y - midcenter) < handlewidth / 2.0)
+                {
+                    double a = (Point.X - maxgrabberwidth) / handlelength;
+                    return Color.RGBA(1.0, 1.0, 1.0, 1.0 - a * a);
+                }
+                return Color.Transparent;
+            }).CreateTexture(256);
+            return new _LinkerTexture()
+            {
+                Size = size,
+                ChildCenterOffset = grabbercenter,
+                Texture = tex
+            };
+        }
+
+        private static readonly Dictionary<_LinkerKey, _LinkerTexture> _LinkerTextures = new Dictionary<_LinkerKey, _LinkerTexture>();
 
         /// <summary>
         /// Gets if a link to the specified child is possible. Returns the index of the candidate. 

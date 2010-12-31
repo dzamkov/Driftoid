@@ -152,6 +152,17 @@ namespace Driftoid
         }
 
         /// <summary>
+        /// Gets the width of the border on this driftoid. This is used only for display purposes.
+        /// </summary>
+        public virtual double BorderWidth
+        {
+            get
+            {
+                return 0.3 * this.Radius;
+            }
+        }
+
+        /// <summary>
         /// Applies a force, in mass * unit/second^2, to the driftoid.
         /// </summary>
         internal void _ApplyForce(double Time, Vector Force)
