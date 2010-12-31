@@ -96,10 +96,10 @@ namespace Driftoid
                 int texsize = 256;
                 using (Bitmap bm = new Bitmap(texsize, texsize))
                 {
+                    Driftoid.DrawSolid(bm, 0.15, this.BorderColor, this.InteriorColor);
                     using (Graphics g = Graphics.FromImage(bm))
                     {
                         float actualsize = (float)texsize;
-                        Driftoid.DrawSolid(g, texsize, 0.15f, this.BorderColor, this.InteriorColor);
                         using (Font f = new Font(_GetFont(), actualsize * 0.4f, FontStyle.Bold, GraphicsUnit.Pixel))
                         {
                             using(Brush b = new SolidBrush(this.TextColor))
@@ -154,39 +154,39 @@ namespace Driftoid
         private static readonly _Visual[] _Visuals = new _Visual[] { new _Visual() 
             {
                 Text = "C",
-                BorderColor = Color.FromArgb(150, 50, 50),
-                InteriorColor = Color.FromArgb(200, 100, 100),
-                TextColor = Color.FromArgb(180, 50, 50)
+                BorderColor = Color.RGB(0.5, 0.2, 0.2),
+                InteriorColor = Color.RGB(0.7, 0.4, 0.4),
+                TextColor = Color.RGB(0.6, 0.2, 0.2)
             }, new _Visual() 
             {
                 Text = "N",
-                BorderColor = Color.FromArgb(50, 150, 50),
-                InteriorColor = Color.FromArgb(100, 200, 100),
-                TextColor = Color.FromArgb(50, 180, 50)
+                BorderColor = Color.RGB(0.2, 0.5, 0.2),
+                InteriorColor = Color.RGB(0.4, 0.7, 0.4),
+                TextColor = Color.RGB(0.2, 0.6, 0.2)
             }, new _Visual() 
             {
                 Text = "O",
-                BorderColor = Color.FromArgb(160, 160, 160),
-                InteriorColor = Color.FromArgb(200, 200, 200),
-                TextColor = Color.FromArgb(140, 140, 140)
+                BorderColor = Color.RGB(0.55, 0.55, 0.55),
+                InteriorColor = Color.RGB(0.7, 0.7, 0.7),
+                TextColor = Color.RGB(0.45, 0.45, 0.45)
             }, new _Visual() 
             {
                 Text = "H",
-                BorderColor = Color.FromArgb(0, 50, 200),
-                InteriorColor = Color.FromArgb(50, 100, 200),
-                TextColor = Color.FromArgb(0, 50, 200)
+                BorderColor = Color.RGB(0.0, 0.2, 0.7),
+                InteriorColor = Color.RGB(0.2, 0.4, 0.7),
+                TextColor = Color.RGB(0.0, 0.2, 0.7)
             }, new _Visual() 
             {
                 Text = "Fe",
-                BorderColor = Color.FromArgb(200, 200, 200),
-                InteriorColor = Color.FromArgb(100, 100, 100),
-                TextColor = Color.FromArgb(220, 220, 220)
+                BorderColor = Color.RGB(0.7, 0.7, 0.7),
+                InteriorColor = Color.RGB(0.4, 0.4, 0.4),
+                TextColor = Color.RGB(0.8, 0.8, 0.8)
             }, new _Visual()
             {
                 Text = "S",
-                BorderColor = Color.FromArgb(200, 200, 0),
-                InteriorColor = Color.FromArgb(220, 220, 100),
-                TextColor = Color.FromArgb(180, 180, 0)
+                BorderColor = Color.RGB(0.7, 0.7, 0.0),
+                InteriorColor = Color.RGB(0.8, 0.8, 0.4),
+                TextColor = Color.RGB(0.6, 0.6, 0)
             }
         };
 

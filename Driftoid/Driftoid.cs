@@ -43,8 +43,8 @@ namespace Driftoid
         {
             Texture.Bind2D(this.TextureID);
             GL.PushMatrix();
-            GL.Scale(this._Radius, this._Radius, 1.0);
             GL.Translate(this._MotionState.Position.X, this._MotionState.Position.Y, 0.0);
+            GL.Scale(this._Radius, this._Radius, 1.0);
             GL.Rotate(this._MotionState.Angle, 0.0, 0.0, 1.0);
             GL.Begin(BeginMode.Quads);
             GL.Vertex2(-1.0f, -1.0f); GL.TexCoord2(0f, 0f);
@@ -56,54 +56,43 @@ namespace Driftoid
         }
 
         /// <summary>
-        /// Creates a texture for a solid driftoid (circle with a border).
+        /// A drawer for a solid driftoid.
         /// </summary>
-        public static int CreateSolidTexture(
-            int TextureSize,
-            float BorderSize,
-            Color BorderColor,
-            Color InteriorColor)
+        public class SolidDrawer : Drawer
         {
-            using (Bitmap bm = new Bitmap(TextureSize, TextureSize))
+            public override Color AtPoint(Vector Point)
             {
-                using (Graphics g = Graphics.FromImage(bm))
+                double dis = (Point - new Vector(0.5, 0.5)).Length;
+                double trans = 0.5 - BorderSize;
+                if (dis > 0.5)
                 {
-                    DrawSolid(g, TextureSize, BorderSize, BorderColor, InteriorColor);
+                    return Color.Transparent;
                 }
-                return Texture.Create(bm);
+                if (dis > trans)
+                {
+                    return this.BorderColor;
+                }
+                return this.InteriorColor;
             }
+
+            public Color BorderColor;
+            public Color InteriorColor;
+            public double BorderSize;
         }
 
         /// <summary>
         /// Draws a blank circle to the specified graphics context.
         /// </summary>
         public static void DrawSolid(
-            Graphics Context, int Size, float BorderSize, 
+            Bitmap Bitmap, double BorderSize, 
             Color BorderColor, Color InteriorColor)
         {
-            float actualsize = (float)Size;
-            float actualborder = BorderSize * actualsize;
-            Context.Clear(Color.FromArgb(0, BorderColor.R, BorderColor.G, BorderColor.B));
-            using (Brush fillbrush = new SolidBrush(InteriorColor))
+            new SolidDrawer()
             {
-                Context.FillEllipse(fillbrush, new RectangleF(
-                    actualborder / 2.0f, actualborder / 2.0f, actualsize - actualborder, actualsize - actualborder));
-
-            }
-            for (float f = 0.5f; f < actualborder - 0.5f; f += 0.5f)
-            {
-                float eb = f;
-                float vis = Math.Min(Math.Min(f, (actualborder - f)) / 4.0f, 1f);
-                using (Pen borderpen = new Pen(
-                    Color.FromArgb((int)(vis * (float)BorderColor.A), BorderColor.R, BorderColor.G, BorderColor.B),
-                    0.5f))
-                {
-                    Context.DrawEllipse(borderpen,
-                        new RectangleF(
-                            eb, eb,
-                            actualsize - eb * 2.0f, actualsize - eb * 2.0f));
-                }
-            }
+                BorderColor = BorderColor,
+                InteriorColor = InteriorColor,
+                BorderSize = BorderSize
+            }.Draw(Bitmap);
         }
 
         /// <summary>

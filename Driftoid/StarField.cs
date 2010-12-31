@@ -30,7 +30,7 @@ namespace Driftoid
             int[] texs = new int[TextureAmount];
             for (int t = 0; t < TextureAmount; t++)
             {
-                texs[t] = CreateStarfieldTexture(TextureSize, 20, 0.1f, 0.8f, 0.02f, Color.Gray, r);
+                texs[t] = CreateStarfieldTexture(TextureSize, 20, 0.1f, 0.8f, 0.02f, Color.RGB(0.5, 0.5, 0.5), r);
             }
             int last = 0;
             for (int t = 0; t < 6; t++)
@@ -53,7 +53,7 @@ namespace Driftoid
         /// <summary>
         /// Suggested background color.
         /// </summary>
-        public static readonly Color Background = Color.FromArgb(255, 0, 32, 0);
+        public static readonly Color Background = Color.RGB(0.0, 0.13, 0.0);
 
         /// <summary>
         /// Draws the starfield with the specified view, reseting the current view.
@@ -133,11 +133,11 @@ namespace Driftoid
                                 {
                                     float rad = r * actualradius;
                                     using (Pen p = new Pen(
-                                        Color.FromArgb(
-                                        (byte)((float)StarColor.A * (1f - r)),
+                                        Color.RGBA(
                                         StarColor.R,
                                         StarColor.G,
-                                        StarColor.B), 1.0f))
+                                        StarColor.B,
+                                        StarColor.A * (1.0 - r)), 1.0f))
                                     {
                                         g.DrawEllipse(p, x - rad / 2, y - rad / 2, rad, rad);
                                     }

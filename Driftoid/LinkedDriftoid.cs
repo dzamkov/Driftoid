@@ -90,6 +90,14 @@ namespace Driftoid
         }
 
         /// <summary>
+        /// Draws a "linker" between two linked driftoids. Driftoids and view should already be set up.
+        /// </summary>
+        public static void DrawLinker(LinkedDriftoid Parent, LinkedDriftoid Child)
+        {
+
+        }
+
+        /// <summary>
         /// Gets if a link to the specified child is possible. Returns the index of the candidate. 
         /// </summary>
         internal bool _CanLink(LinkedDriftoid Child, out int Index)

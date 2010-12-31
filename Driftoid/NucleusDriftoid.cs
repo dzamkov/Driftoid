@@ -13,6 +13,7 @@ namespace Driftoid
             : base(new DriftoidConstructorInfo()
             {
                 Mass = 20.0,
+                Radius = 3.0,
                 Player = Player,
                 MotionState = MotionState
             })
@@ -41,10 +42,9 @@ namespace Driftoid
             float actualsize = (float)texsize;
             using (Bitmap bm = new Bitmap(texsize, texsize))
             {
+                Driftoid.DrawSolid(bm, 0.15, primary, secondary);
                 using (Graphics g = Graphics.FromImage(bm))
                 {
-                    Driftoid.DrawSolid(g, texsize, 0.1f, primary, secondary);
-
                     int dashamount = 9;
                     double dashdelta = Math.PI * 2.0 / (double)dashamount;
                     Vector center = new Vector(actualsize / 2.0f, actualsize / 2.0f);

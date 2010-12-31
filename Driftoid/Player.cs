@@ -33,13 +33,7 @@ namespace Driftoid
         {
             get
             {
-                float r = (float)this._Color.R / 255.0f;
-                float g = (float)this._Color.G / 255.0f;
-                float b = (float)this._Color.B / 255.0f;
-                r = r * 0.5f + 0.1f;
-                g = g * 0.5f + 0.1f;
-                b = b * 0.5f + 0.1f;
-                return Color.FromArgb((int)(r * 255.0f), (int)(g * 255.0f), (int)(b * 255.0f));
+                return this._Color.Desaturate(0.2, 0.5);
             }
         }
 
@@ -51,24 +45,7 @@ namespace Driftoid
         {
             get
             {
-                float r = (float)this._Color.R / 255.0f;
-                float g = (float)this._Color.G / 255.0f;
-                float b = (float)this._Color.B / 255.0f;
-
-                if (Math.Abs(0.5 - r) > 0.3 || Math.Abs(0.5 - g) > 0.3 || Math.Abs(0.5 - b) > 0.3)
-                {
-                    r = r * 0.3f + 0.4f;
-                    g = g * 0.3f + 0.4f;
-                    b = b * 0.3f + 0.4f;
-                }
-                else
-                {
-                    r += 0.2f;
-                    g += 0.2f;
-                    b += 0.2f;
-                }
-
-                return Color.FromArgb((int)(r * 255.0f), (int)(g * 255.0f), (int)(b * 255.0f));
+                return this._Color.Desaturate(0.4, 0.7);
             }
         }
 

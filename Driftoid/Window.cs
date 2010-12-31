@@ -28,7 +28,7 @@ namespace Driftoid
             this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Hydrogen, 0.0, -3.0));
             this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Hydrogen, -2.0, -4.0));
             this._Area.Spawn(new NucleusDriftoid(
-                this._Player = new Player(Color.FromArgb(255, 0, 0)), new DriftoidState(new Vector(-4.0, 1.0))));
+                this._Player = new Player(Color.RGB(1.0, 0.0, 0.0)), new DriftoidState(new Vector(-4.0, 1.0))));
             this._Starfield = Starfield.CreateDefault(512, 5);
 
             this._View = new View(new Vector(), 0.0, 0.1);
@@ -51,6 +51,14 @@ namespace Driftoid
             foreach (Driftoid d in this._Area.Driftoids)
             {
                 d.Draw();
+            }
+            foreach (Driftoid d in this._Area.Driftoids)
+            {
+                LinkedDriftoid ld = d as LinkedDriftoid;
+                if (ld != null && ld.LinkedParent != null)
+                {
+                    LinkedDriftoid.DrawLinker(ld.LinkedParent, ld);
+                }
             }
 
             this.SwapBuffers();
