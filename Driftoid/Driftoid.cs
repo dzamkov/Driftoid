@@ -170,6 +170,15 @@ namespace Driftoid
             this._MotionState.ApplyForce(Time, Force * (1.0 / this._Mass));
         }
 
+
+        /// <summary>
+        /// Directly applies a velocity.
+        /// </summary>
+        internal void _ApplyImpulse(Vector Impulse)
+        {
+            this._MotionState.Velocity += Impulse * (1.0 / this._Mass);
+        }
+
         /// <summary>
         /// Responds to the collision of two driftoids.
         /// </summary>

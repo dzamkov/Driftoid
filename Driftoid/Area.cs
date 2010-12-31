@@ -119,6 +119,42 @@ namespace Driftoid
         }
 
         /// <summary>
+        /// Indicates that a player is trying to manually delink a driftoid from its parent.
+        /// </summary>
+        public void TryDelink(Player Player, LinkedDriftoid Target)
+        {
+            if (Target.LinkedParent != null)
+            {
+                if (this.HasLinkControl(Player, Target))
+                {
+                    LinkedDriftoid._Delink(Target.LinkedParent, Target);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets if a player can control the links associated with the target.
+        /// </summary>
+        public bool HasLinkControl(Player Player, LinkedDriftoid Target)
+        {
+            LinkedDriftoid cur = Target;
+            while (cur != null)
+            {
+                NucleusDriftoid ndr = cur as NucleusDriftoid;
+                if (ndr != null)
+                {
+                    if (ndr.Player == Player)
+                    {
+                        return true;
+                    }
+                }
+
+                cur = cur.LinkedParent;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Spawns the specified driftoid, out of nowhere. This should not be called during an update.
         /// </summary>
         public void Spawn(Driftoid Driftoid)

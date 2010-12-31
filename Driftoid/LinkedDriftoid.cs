@@ -29,6 +29,17 @@ namespace Driftoid
         }
 
         /// <summary>
+        /// Gets the amount of linked children this driftoid currently has.
+        /// </summary>
+        public int LinkedChildrenAmount
+        {
+            get
+            {
+                return this._LinkedChildren.Count;
+            }
+        }
+
+        /// <summary>
         /// Gets the children driftoids of this driftoid.
         /// </summary>
         public IEnumerable<LinkedDriftoid> LinkedChildren
@@ -195,13 +206,13 @@ namespace Driftoid
                     double angdif = Math.Abs(grabberang);
                     if (angdif < grabbermaxangle)
                     {
-                        return Color.RGBA(1.0, 1.0, 1.0, 1.0);
+                        return Color.RGBA(0.9, 0.9, 0.9, 1.0);
                     }
                 }
                 if (Math.Abs(Point.Y - midcenter) < handlewidth / 2.0)
                 {
                     double a = (Point.X - maxgrabberwidth) / handlelength;
-                    return Color.RGBA(1.0, 1.0, 1.0, 1.0 - a * a);
+                    return Color.RGBA(0.9, 0.9, 0.9, 1.0 - a * a);
                 }
                 return Color.Transparent;
             }).CreateTexture(256);
@@ -281,6 +292,21 @@ namespace Driftoid
                 // Equivalent to another problem...
                 Driftoid._CollisionResponse(Parent, Child, Difference, Distance, 1.0);
             }
+        }
+
+        /// <summary>
+        /// Unlinks the specified child.
+        /// </summary>
+        internal static void _Delink(LinkedDriftoid Parent, LinkedDriftoid Child)
+        {
+            Parent._LinkedChildren.Remove(Child);
+            Child._LinkedParent = null;
+
+            // Apply a small impluse to ensure they stay delinked
+            Vector dif = Parent.Position - Child.Position;
+            dif = dif * (1.0 / dif.Length);
+            Parent._ApplyImpulse(dif);
+            Child._ApplyImpulse(-dif);
         }
 
         /// <summary>

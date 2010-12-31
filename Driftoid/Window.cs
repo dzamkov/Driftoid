@@ -21,17 +21,39 @@ namespace Driftoid
             GL.Enable(EnableCap.ColorMaterial);
 
             this._Area = new Area();
-            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Carbon, 0.0, 0.0));
-            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Carbon, 3.0, 0.0));
-            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Oxygen, 0.0, 3.0));
-            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Hydrogen, 2.0, 4.0));
-            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Hydrogen, 0.0, -3.0));
-            this._Area.Spawn(PrimitiveDriftoid.QuickCreate(PrimitiveDriftoidType.Hydrogen, -2.0, -4.0));
+
+            for (int x = 0; x < 4; x++)
+            {
+                for (int y = 0; y < 4; y++)
+                {
+                    this._Area.Spawn(PrimitiveDriftoid.QuickCreate((PrimitiveDriftoidType)y, (double)x * 3.0, (double)y * 3.0 - 4.5));
+                }
+            }
+
             this._Area.Spawn(new NucleusDriftoid(
-                this._Player = new Player(Color.RGB(1.0, 0.0, 0.0)), new DriftoidState(new Vector(-4.0, 1.0))));
+                this._Player = new Player(Color.RGB(1.0, 0.0, 0.0)), new DriftoidState(new Vector(-6.0, 0.0))));
             this._Starfield = Starfield.CreateDefault(512, 5);
 
             this._View = new View(new Vector(), 0.0, 0.1);
+
+
+            this.Mouse.ButtonDown += delegate(object sender, MouseButtonEventArgs e)
+            {
+                if (e.Button == MouseButton.Left)
+                {
+                    Vector pos = this.MouseWorldPosition;
+                    this._Dragged = this._Area.Pick(pos);
+                }
+                if (e.Button == MouseButton.Right)
+                {
+                    Vector pos = this.MouseWorldPosition;
+                    LinkedDriftoid ldr = this._Area.Pick(pos) as LinkedDriftoid;
+                    if (ldr != null)
+                    {
+                        this._Area.TryDelink(this._Player, ldr);
+                    }
+                }
+            };
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -93,18 +115,12 @@ namespace Driftoid
         {
             double updatetime = e.Time;
 
-            if (Mouse[MouseButton.Left])
-            {
-                Vector mousepos = this.MouseWorldPosition;
-                if (!this._MouseLastState)
-                {
-                    // Pick a driftoid to move
-                    this._Dragged = this._Area.Pick(mousepos);
-                    this._MouseLastState = true;
-                }
+            Vector mousepos = this.MouseWorldPosition;
 
-                // Drift command
-                if (this._Dragged != null)
+            // Drift command
+            if (this._Dragged != null)
+            {
+                if (this.Mouse[MouseButton.Left])
                 {
                     this._Area.IssueCommand(this._Player, new DriftCommand()
                     {
@@ -112,14 +128,9 @@ namespace Driftoid
                         TargetPosition = mousepos
                     });
                 }
-            }
-            else
-            {
-                if (this._MouseLastState)
+                else
                 {
-                    // Stop
                     this._Area.CancelDriftCommand(this._Player);
-                    this._MouseLastState = false;
                 }
             }
 
@@ -142,11 +153,9 @@ namespace Driftoid
             GL.Viewport(0, 0, this.Width, this.Height);
         }
 
-
         private Starfield _Starfield;
         private View _View;
         private Player _Player;
-        private bool _MouseLastState;
         private Driftoid _Dragged;
         private Area _Area;
     }

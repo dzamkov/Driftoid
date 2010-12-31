@@ -149,6 +149,32 @@ namespace Driftoid
         private static FontFamily _Font;
 
         /// <summary>
+        /// Gets the maximum amount of links a driftoid of a primitive type can support.
+        /// </summary>
+        public static int GetMaxLinks(PrimitiveDriftoidType Type)
+        {
+            return _MaxLinks[(int)Type];
+        }
+
+        public override bool AllowLink(int Index, LinkedDriftoid PossibleChild)
+        {
+            if (this.LinkedChildrenAmount < GetMaxLinks(this.Type))
+            {
+                return base.AllowLink(Index, PossibleChild);
+            }
+            return false;
+        }
+
+        private static readonly int[] _MaxLinks = new int[] {
+            3,
+            2,
+            1,
+            0,
+            1,
+            1,
+        };
+
+        /// <summary>
         /// Visual properties of the primitive types.
         /// </summary>
         private static readonly _Visual[] _Visuals = new _Visual[] { new _Visual() 
