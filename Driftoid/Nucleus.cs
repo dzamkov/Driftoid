@@ -21,13 +21,7 @@ namespace Driftoid
         {
             get
             {
-                return (MotionState ms) => new LinkedDriftoid(new DriftoidConstructorInfo()
-                {
-                    Kind = this,
-                    Mass = 20.0,
-                    Radius = 3.0,
-                    MotionState = ms
-                });
+                return new DriftoidConstructor(this, 3.0, 20.0);
             }
         }
 

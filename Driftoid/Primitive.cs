@@ -44,13 +44,7 @@ namespace Driftoid
         {
             get
             {
-                return (MotionState ms) => new LinkedDriftoid(new DriftoidConstructorInfo()
-                {
-                    Kind = this,
-                    Mass = _Masses[(int)this._Type],
-                    Radius = 1.0,
-                    MotionState = ms
-                });
+                return new DriftoidConstructor(this, 1.0, _Masses[(int)this._Type]);
             }
         }
 

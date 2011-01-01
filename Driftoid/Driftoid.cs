@@ -25,7 +25,13 @@ namespace Driftoid
         /// </summary>
         public static LinkedDriftoid Make(DriftoidConstructor Constructor, MotionState MotionState)
         {
-            return Constructor(MotionState);
+            return new LinkedDriftoid(new DriftoidConstructorInfo()
+            {
+                Kind = Constructor.Kind,
+                Mass = Constructor.Mass,
+                Radius = Constructor.Radius,
+                MotionState = MotionState
+            });
         }
 
         /// <summary>
@@ -33,7 +39,7 @@ namespace Driftoid
         /// </summary>
         public static LinkedDriftoid Make(DriftoidConstructor Constructor, Vector Position)
         {
-            return Constructor(new MotionState(Position));
+            return Make(Constructor, new MotionState(Position));
         }
 
         /// <summary>
@@ -350,9 +356,31 @@ namespace Driftoid
     }
 
     /// <summary>
-    /// Constructs a driftoid in place of another with the given motion state.
+    /// Describes the initial properties of a driftoid, allowing the creation of one with any motion state.
     /// </summary>
-    public delegate LinkedDriftoid DriftoidConstructor(MotionState MotionState);
+    public class DriftoidConstructor
+    {
+        public DriftoidConstructor()
+        {
+
+        }
+
+        public DriftoidConstructor(Kind Kind)
+        {
+            this.Kind = Kind;
+        }
+
+        public DriftoidConstructor(Kind Kind, double Radius, double Mass)
+        {
+            this.Kind = Kind;
+            this.Radius = Radius;
+            this.Mass = Mass;
+        }
+
+        public Kind Kind;
+        public double Radius = 1.0;
+        public double Mass = 1.0;
+    }
 
     /// <summary>
     /// Parameter for construction of driftoids.
