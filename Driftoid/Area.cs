@@ -93,6 +93,7 @@ namespace Driftoid
             }
             foreach (LinkedDriftoid ldr in toremove)
             {
+                ldr._Delete();
                 this._Driftoids.Remove(ldr);
             }
 

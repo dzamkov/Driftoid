@@ -18,6 +18,22 @@ namespace Driftoid
         }
 
         /// <summary>
+        /// Completely removes all links from the driftoid, without correcting any links on this driftoid, with the
+        /// expectation that this driftoid will never be used again.
+        /// </summary>
+        internal void _Delete()
+        {
+            if (this._LinkedParent != null)
+            {
+                this._LinkedParent._LinkedChildren.Remove(this);
+            }
+            foreach (LinkedDriftoid ldr in this._LinkedChildren)
+            {
+                ldr._LinkedParent = null;
+            }
+        }
+
+        /// <summary>
         /// Causes a reaction to start on its target driftoid.
         /// </summary>
         public static void BeginReaction(Reaction Reaction)
@@ -314,14 +330,22 @@ namespace Driftoid
         /// </summary>
         internal static void _Delink(LinkedDriftoid Parent, LinkedDriftoid Child)
         {
-            Parent._LinkedChildren.Remove(Child);
-            Child._LinkedParent = null;
+            _SimpleDelink(Parent, Child);
 
             // Apply a small impluse to ensure they stay delinked
             Vector dif = Parent.Position - Child.Position;
             dif = dif * (1.0 / dif.Length);
             Parent._ApplyImpulse(dif);
             Child._ApplyImpulse(-dif);
+        }
+
+        /// <summary>
+        /// Unlinks the specified child, providing no way to ensure they remain delinked.
+        /// </summary>
+        internal static void _SimpleDelink(LinkedDriftoid Parent, LinkedDriftoid Child)
+        {
+            Parent._LinkedChildren.Remove(Child);
+            Child._LinkedParent = null;
         }
 
         /// <summary>
@@ -375,7 +399,7 @@ namespace Driftoid
             Child._LinkedParent = this;
         }
 
-        private LinkedDriftoid _LinkedParent;
-        private List<LinkedDriftoid> _LinkedChildren;
+        internal LinkedDriftoid _LinkedParent;
+        internal List<LinkedDriftoid> _LinkedChildren;
     }
 }
