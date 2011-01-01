@@ -69,16 +69,15 @@ namespace Driftoid
                     LinkedDriftoid ldr = this._Area.Pick(mousepos);
                     if (ldr != null)
                     {
-                        /*if (this._Area.HasLinkControl(this._Player, ldr))
+                        if (this._Area.HasLinkControl(this._Player, ldr))
                         {
                             Reaction r = new Reaction()
                             {
-                                Product = (MotionState MotionState) => new PrimitiveDriftoid(PrimitiveDriftoidType.Iron, MotionState),
-                                ProductRadius = 1.0,
+                                Product = PrimitiveKind.Get(PrimitiveType.Iron).Constructor,
                                 Target = ldr
                             };
                             LinkedDriftoid.BeginReaction(r);
-                        }*/
+                        }
                     }
                 }
             };

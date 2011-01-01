@@ -1,4 +1,7 @@
-﻿using System;
+﻿using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 
 namespace Driftoid
@@ -19,43 +22,77 @@ namespace Driftoid
         public DriftoidConstructor Product;
 
         /// <summary>
-        /// The radius of the product to be created.
-        /// </summary>
-        public double ProductRadius;
-
-        /// <summary>
         /// The amount of time in seconds it takes to convert a normal reactant into a transitional state.
         /// </summary>
-        public const double WarmupRate = 1.0;
+        public const double WarmupTime = 1.0;
 
         /// <summary>
         /// The amount of time in seconds it takes for a transitional state to be absorbed or transformed.
         /// </summary>
-        public const double CooldownRate = 1.0;
+        public const double CooldownTime = 1.0;
     }
 
-    public enum DriftoidReactionState
+    /// <summary>
+    /// The kind of a driftoid that is entering a transitional state.
+    /// </summary>
+    public class ReactionWarmupKind : Kind
     {
-        /// <summary>
-        /// The state of a driftoid as it begins being absorbed. A driftoid in this state retains its properties.
-        /// </summary>
-        Warmup,
+        public ReactionWarmupKind(Reaction Reaction, Kind Source)
+        {
+            this._Reaction = Reaction;
+            this._Source = Source;
+        }
 
-        /// <summary>
-        /// The state of a driftoid as it waits for some part of the reaction to take place before cooling down. A driftoid
-        /// in this state is inactive.
-        /// </summary>
-        Transitional,
+        public override Kind Update(double Time)
+        {
+            this._Time += Time;
+            this._Source.Update(Time);
+            return this;
+        }
 
-        /// <summary>
-        /// The state of a driftoid as it is absorbed.
-        /// </summary>
-        Cooldown,
+        public override void Draw(Driftoid Driftoid)
+        {
+            SetupTextures();
+            this._Source.Draw(Driftoid);
+            GL.Color4(1.0, 1.0, 1.0, this._Time / Reaction.WarmupTime);
+            Driftoid.DrawTexture(_InnerTextureID, 1.0, 0.0);
+            GL.Color4(1.0, 1.0, 1.0, 1.0);
+        }
 
-        /// <summary>
-        /// The state of a driftoid as it morphs into its final state. This is assigned to the product of the reaction, once it
-        /// is created.
-        /// </summary>
-        TransformCooldown
+        public override double GetBorderWidth(Driftoid Driftoid)
+        {
+            return this._Source.GetBorderWidth(Driftoid);
+        }
+
+        public override bool AllowLink(int Index, LinkedDriftoid This, LinkedDriftoid Other)
+        {
+            return false;
+        }
+
+        public override bool AllowLink(LinkedDriftoid This, LinkedDriftoid Other)
+        {
+            return false;
+        }
+
+        public static void SetupTextures()
+        {
+            if (!_TexturesSetup)
+            {
+                _InnerTextureID = new Driftoid.SolidDrawer()
+                {
+                    BorderColor = Color.RGB(1.0, 1.0, 1.0),
+                    BorderSize = 0.0,
+                    InteriorColor = Color.RGB(1.0, 1.0, 1.0)
+                }.CreateTexture(256);
+                _TexturesSetup = true;
+            }
+        }
+
+        private static bool _TexturesSetup;
+        private static int _InnerTextureID;
+
+        private double _Time;
+        private Reaction _Reaction;
+        private Kind _Source;
     }
 }

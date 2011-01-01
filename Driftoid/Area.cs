@@ -62,6 +62,25 @@ namespace Driftoid
                 }
             }
 
+            // Update state
+            List<LinkedDriftoid> toremove = new List<LinkedDriftoid>();
+            foreach (LinkedDriftoid ldr in this._Driftoids)
+            {
+                Kind next = ldr.Kind.Update(Time);
+                if (next == null)
+                {
+                    toremove.Add(ldr);
+                }
+                else
+                {
+                    ldr._Kind = next;
+                }
+            }
+            foreach (LinkedDriftoid ldr in toremove)
+            {
+                this._Driftoids.Remove(ldr);
+            }
+
             // Update positions
             foreach (Driftoid dr in this._Driftoids)
             {
@@ -73,45 +92,36 @@ namespace Driftoid
             {
                 for (int idrb = idra + 1; idrb < this._Driftoids.Count; idrb++)
                 {
-                    Driftoid dra = this._Driftoids[idra];
-                    Driftoid drb = this._Driftoids[idrb];
+                    LinkedDriftoid dra = this._Driftoids[idra];
+                    LinkedDriftoid drb = this._Driftoids[idrb];
                     double trad = dra.Radius + drb.Radius;
                     Vector dif = drb.Position - dra.Position;
                     double dis = dif.Length;
-                    LinkedDriftoid ldra = dra as LinkedDriftoid;
-                    LinkedDriftoid ldrb = drb as LinkedDriftoid;
-                    if (ldra != null && ldrb != null)
+                    if (dra.LinkedParent == drb)
                     {
-                        if (ldra.LinkedParent == ldrb)
-                        {
-                            LinkedDriftoid._CorrectLink(ldra, ldrb, 0, dif, dis);
-                            continue;
-                        }
-                        if (ldrb.LinkedParent == ldra)
-                        {
-                            LinkedDriftoid._CorrectLink(ldrb, ldra, 0, -dif, dis);
-                            continue;
-                        }
+                        LinkedDriftoid._CorrectLink(dra, drb, 0, dif, dis);
+                        continue;
+                    }
+                    if (drb.LinkedParent == dra)
+                    {
+                        LinkedDriftoid._CorrectLink(drb, dra, 0, -dif, dis);
+                        continue;
                     }
 
                     if (dis <= trad)
                     {
                         // Try link
-                        if (ldra != null && ldrb != null)
+                        LinkedDriftoid._Link(dra, drb);
+                        if (dra.LinkedParent == drb)
                         {
-                            LinkedDriftoid._Link(ldra, ldrb);
-                            if (ldra.LinkedParent == ldrb)
-                            {
-                                LinkedDriftoid._CorrectLink(ldra, ldrb, 0, dif, dis);
-                                continue;
-                            }
-                            if (ldrb.LinkedParent == ldra)
-                            {
-                                LinkedDriftoid._CorrectLink(ldrb, ldra, 0, dif, dis);
-                                continue;
-                            }
+                            LinkedDriftoid._CorrectLink(dra, drb, 0, dif, dis);
+                            continue;
                         }
-
+                        if (drb.LinkedParent == dra)
+                        {
+                            LinkedDriftoid._CorrectLink(drb, dra, 0, dif, dis);
+                            continue;
+                        }
                         Driftoid._CollisionResponse(dra, drb, dif, dis, 1.0);
                     }
                 }

@@ -22,15 +22,10 @@ namespace Driftoid
         /// </summary>
         public static void BeginReaction(Reaction Reaction)
         {
-            /*foreach (LinkedDriftoid ldr in Reaction.Target.FinalDescendants)
+            foreach (LinkedDriftoid ldr in Reaction.Target.FinalDescendants)
             {
-                ldr._ReactionInfo = new DriftoidReactionInfo()
-                {
-                    Time = 0.0,
-                    State = DriftoidReactionState.Warmup,
-                    Reaction = Reaction
-                };
-            }*/
+                ldr._Kind = new ReactionWarmupKind(Reaction, ldr.Kind);
+            }
         }
 
         /// <summary>
