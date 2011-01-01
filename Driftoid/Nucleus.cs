@@ -7,31 +7,38 @@ namespace Driftoid
     /// <summary>
     /// A high-mass player-controlled driftoid that can apply force to other driftoids.
     /// </summary>
-    public class NucleusDriftoid : LinkedDriftoid
+    public class NucleusKind : Kind
     {
-        public NucleusDriftoid(Player Player, DriftoidState MotionState)
-            : base(new DriftoidConstructorInfo()
-            {
-                Mass = 20.0,
-                Radius = 3.0,
-                Player = Player,
-                MotionState = MotionState
-            })
+        public NucleusKind(Player Owner)
         {
-
+            this._Owner = Owner;
         }
 
-        public override int TextureID
+        /// <summary>
+        /// A constructor for a driftoid of this kind.
+        /// </summary>
+        public DriftoidConstructor Constructor
         {
             get
             {
-                int texid;
-                if (!_Textures.TryGetValue(this.Player, out texid))
+                return (MotionState ms) => new LinkedDriftoid(new DriftoidConstructorInfo()
                 {
-                    _Textures[this.Player] = texid = _CreateTexture(this.Player);
-                }
-                return texid;
+                    Kind = this,
+                    Mass = 20.0,
+                    Radius = 3.0,
+                    MotionState = ms
+                });
             }
+        }
+
+        public override void Draw(Driftoid Driftoid)
+        {
+            int texid;
+            if (!_Textures.TryGetValue(this._Owner, out texid))
+            {
+                _Textures[this._Owner] = texid = _CreateTexture(this._Owner);
+            }
+            Driftoid.DrawTexture(texid, 1.0, 0.0);
         }
 
         private static int _CreateTexture(Player Player)
@@ -87,19 +94,19 @@ namespace Driftoid
             }
         }
 
-        public override bool AllowLink(int Index, LinkedDriftoid PossibleChild)
-        {
-            return true;    
-        }
-
-        public override bool AllowChildLink(int Index, LinkedDriftoid PossibleChild, LinkedDriftoid Descendant)
+        public override bool AllowLink(int Index, LinkedDriftoid This, LinkedDriftoid Other)
         {
             return true;
         }
 
-        internal void _Pull(double Time, Driftoid Target, Vector Position)
+        public override bool AllowChildLink(int Index, LinkedDriftoid This, LinkedDriftoid Child, LinkedDriftoid Other)
         {
-            double dis = (Target.Position - this.Position).Length;
+            return true;
+        }
+
+        internal void _Pull(double Time, Driftoid Driftoid, Driftoid Target, Vector Position)
+        {
+            double dis = (Target.Position - Driftoid.Position).Length;
             if (dis < this.MaxDistance)
             {
                 Vector vel = Target.MotionState.Velocity;
@@ -112,9 +119,19 @@ namespace Driftoid
                 Vector nvec = vec * (1.0 / mdis);
                 vec = nvec * this.MaxForce;
                 Target._ApplyForce(Time, vec);
-                this._ApplyForce(Time, -vec);
+                Driftoid._ApplyForce(Time, -vec);
             }
         }
+
+        public override Player Owner
+        {
+            get
+            {
+                return this._Owner;
+            }
+        }
+
+        private Player _Owner;
     }
 
     /// <summary>

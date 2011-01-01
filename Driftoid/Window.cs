@@ -24,14 +24,19 @@ namespace Driftoid
 
             for (int x = 0; x < 4; x++)
             {
-                for (int y = 0; y < 4; y++)
+                for (int y = 0; y < 6; y++)
                 {
-                    this._Area.Spawn(PrimitiveDriftoid.QuickCreate((PrimitiveDriftoidType)y, (double)x * 3.0, (double)y * 3.0 - 4.5));
+                    this._Area.Spawn(
+                        Driftoid.Make(
+                            PrimitiveKind.Get((PrimitiveType)y).Constructor, 
+                            new Vector((double)x * 3.0, (double)y * 3.0 - 7.5)));
                 }
             }
 
-            this._Area.Spawn(new NucleusDriftoid(
-                this._Player = new Player(Color.RGB(1.0, 0.0, 0.0)), new DriftoidState(new Vector(-6.0, 0.0))));
+            this._Area.Spawn(
+                Driftoid.Make(
+                    new NucleusKind(this._Player = new Player(Color.RGB(1.0, 0.0, 0.0))).Constructor,
+                    new Vector(-6.0, 0.0)));
             this._Starfield = Starfield.CreateDefault(512, 5);
 
             this._View = new View(new Vector(), 0.0, 0.1);
@@ -54,6 +59,29 @@ namespace Driftoid
                     }
                 }
             };
+
+            this.Keyboard.KeyDown += delegate(object sender, KeyboardKeyEventArgs e)
+            {
+                // Test reaction
+                if (e.Key == Key.F)
+                {
+                    Vector mousepos = this.MouseWorldPosition;
+                    LinkedDriftoid ldr = this._Area.Pick(mousepos);
+                    if (ldr != null)
+                    {
+                        /*if (this._Area.HasLinkControl(this._Player, ldr))
+                        {
+                            Reaction r = new Reaction()
+                            {
+                                Product = (MotionState MotionState) => new PrimitiveDriftoid(PrimitiveDriftoidType.Iron, MotionState),
+                                ProductRadius = 1.0,
+                                Target = ldr
+                            };
+                            LinkedDriftoid.BeginReaction(r);
+                        }*/
+                    }
+                }
+            };
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -70,13 +98,12 @@ namespace Driftoid
             this._View.Setup(aspect);
 
             Driftoid.SetupDraw();
-            foreach (Driftoid d in this._Area.Driftoids)
+            foreach (LinkedDriftoid d in this._Area.Driftoids)
             {
-                d.Draw();
+                d.Kind.Draw(d);
             }
-            foreach (Driftoid d in this._Area.Driftoids)
+            foreach (LinkedDriftoid ld in this._Area.Driftoids)
             {
-                LinkedDriftoid ld = d as LinkedDriftoid;
                 if (ld != null && ld.LinkedParent != null)
                 {
                     LinkedDriftoid.DrawLinker(ld.LinkedParent, ld);

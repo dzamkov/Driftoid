@@ -7,7 +7,7 @@ namespace Driftoid
     /// <summary>
     /// A type of primitive driftoid.
     /// </summary>
-    public enum PrimitiveDriftoidType
+    public enum PrimitiveType
     {
         Carbon,
         Nitrogen,
@@ -18,48 +18,39 @@ namespace Driftoid
     }
 
     /// <summary>
-    /// A primitive (simple, building block) driftoid.
+    /// A kind for a primitive/element driftoid. Primitives have very little special properties.
     /// </summary>
-    public class PrimitiveDriftoid : LinkedDriftoid
+    public sealed class PrimitiveKind : Kind
     {
-        public PrimitiveDriftoid(PrimitiveDriftoidType Type, DriftoidState MotionState)
-            : base(new DriftoidConstructorInfo()
-            {
-                MotionState = MotionState
-            })
+        private PrimitiveKind(PrimitiveType Type)
         {
             this._Type = Type;
         }
 
-        public override int TextureID
+        public override void Draw(Driftoid Driftoid)
         {
-            get
+            int texid;
+            if (!_Textures.TryGetValue(this._Type, out texid))
             {
-                int texid;
-                if (!_Textures.TryGetValue(this._Type, out texid))
-                {
-                    _Textures[this._Type] = texid = _Visuals[(int)this._Type].CreateTexture();
-                }
-                return texid;
+                _Textures[this._Type] = texid = _Visuals[(int)this._Type].CreateTexture();
             }
+            Driftoid.DrawTexture(texid, 1.0, 0.0);
         }
 
         /// <summary>
-        /// Really quick way to create a primitive driftoid.
+        /// A constructor for a driftoid of this kind.
         /// </summary>
-        public static PrimitiveDriftoid QuickCreate(PrimitiveDriftoidType Type, double X, double Y)
-        {
-            return new PrimitiveDriftoid(Type, new DriftoidState(new Vector(X, Y)));
-        }
-
-        /// <summary>
-        /// Gets the type of this primitive driftoid.
-        /// </summary>
-        public PrimitiveDriftoidType Type
+        public DriftoidConstructor Constructor
         {
             get
             {
-                return this._Type;
+                return (MotionState ms) => new LinkedDriftoid(new DriftoidConstructorInfo()
+                {
+                    Kind = this,
+                    Mass = _Masses[(int)this._Type],
+                    Radius = 1.0,
+                    MotionState = ms
+                });
             }
         }
 
@@ -102,7 +93,7 @@ namespace Driftoid
                         float actualsize = (float)texsize;
                         using (Font f = new Font(_GetFont(), actualsize * 0.4f, FontStyle.Bold, GraphicsUnit.Pixel))
                         {
-                            using(Brush b = new SolidBrush(this.TextColor))
+                            using (Brush b = new SolidBrush(this.TextColor))
                             {
                                 SizeF strsize = g.MeasureString(this.Text, f);
 
@@ -151,27 +142,36 @@ namespace Driftoid
         /// <summary>
         /// Gets the maximum amount of links a driftoid of a primitive type can support.
         /// </summary>
-        public static int GetMaxLinks(PrimitiveDriftoidType Type)
+        public static int GetMaxLinks(PrimitiveType Type)
         {
             return _MaxLinks[(int)Type];
         }
 
-        public override bool AllowLink(int Index, LinkedDriftoid PossibleChild)
+        public override bool AllowLink(int Index, LinkedDriftoid This, LinkedDriftoid Other)
         {
-            if (this.LinkedChildrenAmount < GetMaxLinks(this.Type))
+            if (This.LinkedChildrenAmount < GetMaxLinks(this.Type))
             {
-                return base.AllowLink(Index, PossibleChild);
+                return base.AllowLink(Index, This, Other);
             }
             return false;
         }
+
+        private static readonly double[] _Masses = new double[] {
+            0.3,
+            0.4,
+            0.4,
+            0.2,
+            3.0,
+            1.0
+        };
 
         private static readonly int[] _MaxLinks = new int[] {
             3,
             2,
             1,
             0,
-            1,
-            1,
+            0,
+            0,
         };
 
         /// <summary>
@@ -219,9 +219,33 @@ namespace Driftoid
         /// <summary>
         /// A cache of textures used for primitive driftoids.
         /// </summary>
-        private static readonly Dictionary<PrimitiveDriftoidType, int> _Textures = new Dictionary<PrimitiveDriftoidType, int>();
+        private static readonly Dictionary<PrimitiveType, int> _Textures = new Dictionary<PrimitiveType, int>();
+        private static readonly Dictionary<PrimitiveType, PrimitiveKind> _Kinds = new Dictionary<PrimitiveType, PrimitiveKind>();
 
-        private PrimitiveDriftoidType _Type;
+        /// <summary>
+        /// Gets a primitive kind for a primitive type.
+        /// </summary>
+        public static PrimitiveKind Get(PrimitiveType Type)
+        {
+            PrimitiveKind kind;
+            if (!_Kinds.TryGetValue(Type, out kind))
+            {
+                _Kinds[Type] = kind = new PrimitiveKind(Type);
+            }
+            return kind;
+        }
+
+        /// <summary>
+        /// Gets the primitive type of this kind.
+        /// </summary>
+        public PrimitiveType Type
+        {
+            get
+            {
+                return this._Type;
+            }
+        }
+
+        private PrimitiveType _Type;
     }
-
 }

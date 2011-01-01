@@ -16,14 +16,25 @@ namespace Driftoid
         {
             this._Radius = Info.Radius;
             this._MotionState = Info.MotionState;
-            this._Player = Info.Player;
+            this._Kind = Info.Kind;
             this._Mass = Info.Mass;
         }
 
         /// <summary>
-        /// Gets the texture ID that should be used to render the driftoid.
+        /// Creates a driftoid using a driftoid constructor.
         /// </summary>
-        public abstract int TextureID { get; }
+        public static LinkedDriftoid Make(DriftoidConstructor Constructor, MotionState MotionState)
+        {
+            return Constructor(MotionState);
+        }
+
+        /// <summary>
+        /// Creates a driftoid using a driftoid constructor.
+        /// </summary>
+        public static LinkedDriftoid Make(DriftoidConstructor Constructor, Vector Position)
+        {
+            return Constructor(new MotionState(Position));
+        }
 
         /// <summary>
         /// Prepares the current GL context for drawing. Should be called after setting up the view.
@@ -37,15 +48,15 @@ namespace Driftoid
         }
 
         /// <summary>
-        /// Draws the driftoid to the current view.
+        /// Draws a texture relative to this driftoid.
         /// </summary>
-        public void Draw()
+        public void DrawTexture(int TextureID, double Size, double Angle)
         {
-            Texture.Bind2D(this.TextureID);
+            Texture.Bind2D(TextureID);
             GL.PushMatrix();
             GL.Translate(this._MotionState.Position.X, this._MotionState.Position.Y, 0.0);
-            GL.Scale(this._Radius, this._Radius, 1.0);
-            GL.Rotate(this._MotionState.Angle, 0.0, 0.0, 1.0);
+            GL.Scale(this._Radius * Size, this._Radius * Size, 1.0);
+            GL.Rotate(this._MotionState.Angle + Angle, 0.0, 0.0, 1.0);
             GL.Begin(BeginMode.Quads);
             GL.Vertex2(-1.0f, -1.0f); GL.TexCoord2(0f, 0f);
             GL.Vertex2(-1.0f, 1.0f); GL.TexCoord2(1f, 0f);
@@ -98,7 +109,7 @@ namespace Driftoid
         /// <summary>
         /// Gets the state of the motion of the driftoid.
         /// </summary>
-        public DriftoidState MotionState
+        public MotionState MotionState
         {
             get
             {
@@ -129,18 +140,6 @@ namespace Driftoid
         }
 
         /// <summary>
-        /// Gets the player that this driftoid "belongs" to. This is null for neutral driftoids or driftoids with
-        /// a complex alliance.
-        /// </summary>
-        public Player Player
-        {
-            get
-            {
-                return this._Player;
-            }
-        }
-
-        /// <summary>
         /// Gets the mass of the driftoid.
         /// </summary>
         public double Mass
@@ -152,13 +151,13 @@ namespace Driftoid
         }
 
         /// <summary>
-        /// Gets the width of the border on this driftoid. This is used only for display purposes.
+        /// Gets the kind of this driftoid.
         /// </summary>
-        public virtual double BorderWidth
+        public Kind Kind
         {
             get
             {
-                return 0.3 * this.Radius;
+                return this._Kind;
             }
         }
 
@@ -207,16 +206,81 @@ namespace Driftoid
 
         private double _Radius;
         private double _Mass;
-        internal DriftoidState _MotionState;
-        private Player _Player;
+        internal MotionState _MotionState;
+        internal Kind _Kind;
+    }
+
+    /// <summary>
+    /// Represents a type of driftoid. Driftoid kinds give them their properties.
+    /// </summary>
+    public abstract class Kind
+    {
+        /// <summary>
+        /// Draws a driftoid of this kind.
+        /// </summary>
+        public virtual void Draw(Driftoid Driftoid)
+        {
+
+        }
+
+        /// <summary>
+        /// Gets the visual width of the border of a driftoid of this kind.
+        /// </summary>
+        public virtual double GetBorderWidth(Driftoid Driftoid)
+        {
+            return Driftoid.Radius * 0.3;
+        }
+
+        /// <summary>
+        /// Gets if an other driftoid can link to a driftoid of this kind as a child.
+        /// </summary>
+        public virtual bool AllowLink(int Index, LinkedDriftoid This, LinkedDriftoid Other)
+        {
+            if (This.LinkedParent != null)
+            {
+                return This.LinkedParent.Kind.AllowChildLink(Index, This.LinkedParent, This, Other);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Gets if an other driftoid can link to a driftoid that is a descendant of a driftoid of this kind.
+        /// </summary>
+        public virtual bool AllowChildLink(int Index, LinkedDriftoid This, LinkedDriftoid Child, LinkedDriftoid Other)
+        {
+            if (This.LinkedParent != null)
+            {
+                return This.LinkedParent.Kind.AllowChildLink(Index, This.LinkedParent, Child, Other);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Gets if this driftoid can be linked to another as a child.
+        /// </summary>
+        public virtual bool AllowLink(LinkedDriftoid This, LinkedDriftoid Other)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Gets the player that "owns" this driftoid, or null if this driftoid does not have an alliance.
+        /// </summary>
+        public virtual Player Owner
+        {
+            get
+            {
+                return null;
+            }
+        }
     }
 
     /// <summary>
     /// The physical/motion state of a driftoid.
     /// </summary>
-    public struct DriftoidState
+    public struct MotionState
     {
-        public DriftoidState(Vector Position)
+        public MotionState(Vector Position)
         {
             this.Position = Position;
             this.Angle = 0.0;
@@ -224,7 +288,7 @@ namespace Driftoid
             this.Velocity = new Vector();
         }
 
-        public DriftoidState(Vector Position, double Angle)
+        public MotionState(Vector Position, double Angle)
         {
             this.Position = Position;
             this.Angle = Angle;
@@ -232,7 +296,7 @@ namespace Driftoid
             this.Velocity = new Vector();
         }
 
-        public DriftoidState(Vector Position, Vector Velocity, double Angle, double AngularVelocity)
+        public MotionState(Vector Position, Vector Velocity, double Angle, double AngularVelocity)
         {
             this.Position = Position;
             this.Velocity = Velocity;
@@ -286,6 +350,11 @@ namespace Driftoid
     }
 
     /// <summary>
+    /// Constructs a driftoid in place of another with the given motion state.
+    /// </summary>
+    public delegate LinkedDriftoid DriftoidConstructor(MotionState MotionState);
+
+    /// <summary>
     /// Parameter for construction of driftoids.
     /// </summary>
     public class DriftoidConstructorInfo
@@ -293,7 +362,7 @@ namespace Driftoid
         /// <summary>
         /// Initial motion state of the driftoid.
         /// </summary>
-        public DriftoidState MotionState;
+        public MotionState MotionState;
 
         /// <summary>
         /// The initial mass of the driftoid.
@@ -306,8 +375,8 @@ namespace Driftoid
         public double Radius = 1.0;
 
         /// <summary>
-        /// The initial commanding player, or null for neutral.
+        /// The kind of this driftoid.
         /// </summary>
-        public Player Player = null;
+        public Kind Kind = null;
     }
 }

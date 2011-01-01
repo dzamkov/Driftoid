@@ -7,13 +7,58 @@ using System.Collections.Generic;
 namespace Driftoid
 {
     /// <summary>
-    /// A driftoid that can accept and be involved in tree-like links.
+    /// A kind of driftoid that can accept and be involved in tree-like links.
     /// </summary>
-    public abstract class LinkedDriftoid : Driftoid
+    public class LinkedDriftoid : Driftoid
     {
-        public LinkedDriftoid(DriftoidConstructorInfo Info) : base(Info)
+        public LinkedDriftoid(DriftoidConstructorInfo Info)
+            : base(Info)
         {
             this._LinkedChildren = new List<LinkedDriftoid>();
+        }
+
+        /// <summary>
+        /// Causes a reaction to start on its target driftoid.
+        /// </summary>
+        public static void BeginReaction(Reaction Reaction)
+        {
+            /*foreach (LinkedDriftoid ldr in Reaction.Target.FinalDescendants)
+            {
+                ldr._ReactionInfo = new DriftoidReactionInfo()
+                {
+                    Time = 0.0,
+                    State = DriftoidReactionState.Warmup,
+                    Reaction = Reaction
+                };
+            }*/
+        }
+
+        /// <summary>
+        /// Gets the final descendants (those without children) of this driftoid.
+        /// </summary>
+        public IEnumerable<LinkedDriftoid> FinalDescendants
+        {
+            get
+            {
+                List<LinkedDriftoid> li = new List<LinkedDriftoid>();
+                this._WriteFinalDescendants(li);
+                return li;
+            }
+        }
+
+        private void _WriteFinalDescendants(List<LinkedDriftoid> List)
+        {
+            if (this._LinkedChildren.Count == 0)
+            {
+                List.Add(this);
+            }
+            else
+            {
+                foreach (LinkedDriftoid child in this._LinkedChildren)
+                {
+                    child._WriteFinalDescendants(List);
+                }
+            }
         }
 
         /// <summary>
@@ -61,46 +106,9 @@ namespace Driftoid
             }
             if (this._LinkedParent == null)
             {
-                return false;   
-            }
-            return this._LinkedParent.IsAncestor(Driftoid);
-        }
-
-        /// <summary>
-        /// Gets if the requested child-parent link is allowed. The index indicates where, in terms of children, the
-        /// requested link is.
-        /// </summary>
-        public virtual bool AllowLink(int Index, LinkedDriftoid PossibleChild)
-        {
-            if (this._LinkedParent != null)
-            {
-                return this._LinkedParent.AllowChildLink(Index, PossibleChild, this);
-            }
-            else
-            {
                 return false;
             }
-        }
-
-        /// <summary>
-        /// Gets if the requested parent-child link is allowed. Links are initiated by parents and should in most
-        /// cases be accepted.
-        /// </summary>
-        public virtual bool AllowLink(LinkedDriftoid PossibleParent)
-        {
-            return true;
-        }
-
-        /// <summary>
-        /// Gets if the possible child should link as a child to a descendant of this driftoid.
-        /// </summary>
-        public virtual bool AllowChildLink(int Index, LinkedDriftoid PossibleChild, LinkedDriftoid Descendant)
-        {
-            if (this._LinkedParent != null)
-            {
-                return this._LinkedParent.AllowChildLink(Index, PossibleChild, Descendant);
-            }
-            return false;
+            return this._LinkedParent.IsAncestor(Driftoid);
         }
 
         /// <summary>
@@ -110,9 +118,8 @@ namespace Driftoid
         {
             _LinkerKey lk = new _LinkerKey()
             {
-                ParentRadius = Parent.Radius,
                 ChildRadius = Child.Radius,
-                ChildBorderWidth = Child.BorderWidth
+                ChildBorderWidth = Child.Kind.GetBorderWidth(Child)
             };
             _LinkerTexture lt;
             if (!_LinkerTextures.TryGetValue(lk, out lt))
@@ -143,7 +150,6 @@ namespace Driftoid
         /// </summary>
         private struct _LinkerKey
         {
-            public double ParentRadius;
             public double ChildRadius;
             public double ChildBorderWidth;
         }
@@ -278,7 +284,7 @@ namespace Driftoid
                 }
             }
 
-            return Child.AllowLink(this) && this.AllowLink(Index, Child);
+            return Child.Kind.AllowLink(Child, this) && this.Kind.AllowLink(Index, this, Child);
         }
 
         /// <summary>

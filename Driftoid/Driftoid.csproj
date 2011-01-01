@@ -46,10 +46,11 @@
     <Compile Include="Drawer.cs" />
     <Compile Include="Driftoid.cs" />
     <Compile Include="LinkedDriftoid.cs" />
-    <Compile Include="NucleusDriftoid.cs" />
+    <Compile Include="Nucleus.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="PrimitiveDriftoid.cs" />
+    <Compile Include="Primitive.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Reaction.cs" />
     <Compile Include="Starfield.cs" />
     <Compile Include="Texture.cs" />
     <Compile Include="Vector.cs" />

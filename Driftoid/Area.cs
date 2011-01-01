@@ -13,13 +13,13 @@ namespace Driftoid
         public Area()
         {
             this._DriftCommands = new Dictionary<Player, DriftCommand>();
-            this._Driftoids = new List<Driftoid>();
+            this._Driftoids = new List<LinkedDriftoid>();
         }
 
         /// <summary>
         /// Gets the driftoids in the area. They should not be modified.
         /// </summary>
-        public IEnumerable<Driftoid> Driftoids
+        public IEnumerable<LinkedDriftoid> Driftoids
         {
             get
             {
@@ -30,9 +30,9 @@ namespace Driftoid
         /// <summary>
         /// Gets the driftoid at the specified position. Returns null if the point is unoccupied.
         /// </summary>
-        public Driftoid Pick(Vector Position)
+        public LinkedDriftoid Pick(Vector Position)
         {
-            foreach (Driftoid dr in this._Driftoids)
+            foreach (LinkedDriftoid dr in this._Driftoids)
             {
                 double radius = dr.Radius;
                 if ((dr.MotionState.Position - Position).SquareLength <= radius * radius)
@@ -49,15 +49,15 @@ namespace Driftoid
         public void Update(double Time)
         {
             // Drift commands
-            foreach (Driftoid dr in this._Driftoids)
+            foreach (LinkedDriftoid dr in this._Driftoids)
             {
-                NucleusDriftoid ndr = dr as NucleusDriftoid;
+                NucleusKind ndr = dr.Kind as NucleusKind;
                 if (ndr != null)
                 {
                     DriftCommand dc;
-                    if (this._DriftCommands.TryGetValue(ndr.Player, out dc))
+                    if (this._DriftCommands.TryGetValue(ndr.Owner, out dc))
                     {
-                        ndr._Pull(Time, dc.TargetDriftoid, dc.TargetPosition);
+                        ndr._Pull(Time, dr, dc.TargetDriftoid, dc.TargetPosition);
                     }
                 }
             }
@@ -140,10 +140,10 @@ namespace Driftoid
             LinkedDriftoid cur = Target;
             while (cur != null)
             {
-                NucleusDriftoid ndr = cur as NucleusDriftoid;
+                NucleusKind ndr = cur.Kind as NucleusKind;
                 if (ndr != null)
                 {
-                    if (ndr.Player == Player)
+                    if (ndr.Owner == Player)
                     {
                         return true;
                     }
@@ -157,7 +157,7 @@ namespace Driftoid
         /// <summary>
         /// Spawns the specified driftoid, out of nowhere. This should not be called during an update.
         /// </summary>
-        public void Spawn(Driftoid Driftoid)
+        public void Spawn(LinkedDriftoid Driftoid)
         {
             this._Driftoids.Add(Driftoid);
         }
@@ -186,6 +186,6 @@ namespace Driftoid
         /// <summary>
         /// The driftoids that occupy the area.
         /// </summary>
-        private List<Driftoid> _Driftoids;
+        private List<LinkedDriftoid> _Driftoids;
     }
 }
