@@ -346,6 +346,8 @@ namespace Driftoid
         {
             Parent._LinkedChildren.Remove(Child);
             Child._LinkedParent = null;
+            Parent._Kind = Parent.Kind.OnChildDelink(Parent, Child);
+            Child._Kind = Child.Kind.OnParentDelink(Child, Parent);
         }
 
         /// <summary>
@@ -397,6 +399,10 @@ namespace Driftoid
             }
             this._LinkedChildren[Index] = Child;
             Child._LinkedParent = this;
+
+            // Events
+            this._Kind = this.Kind.OnChildLink(Index, this, Child);
+            Child._Kind = Child.Kind.OnParentLink(Child, this);
         }
 
         internal LinkedDriftoid _LinkedParent;

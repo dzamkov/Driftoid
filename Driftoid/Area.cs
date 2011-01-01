@@ -55,7 +55,13 @@ namespace Driftoid
                 this.Driftoid._Radius = Radius;
             }
 
+            public void Delete()
+            {
+                this.ToDelete.Add(this.Driftoid);
+            }
+
             public LinkedDriftoid Driftoid;
+            public List<LinkedDriftoid> ToDelete;
         }
 
         /// <summary>
@@ -81,15 +87,7 @@ namespace Driftoid
             List<LinkedDriftoid> toremove = new List<LinkedDriftoid>();
             foreach (LinkedDriftoid ldr in this._Driftoids)
             {
-                Kind next = ldr.Kind.Update(ldr, Time, new _DriftoidInterface() { Driftoid = ldr });
-                if (next == null)
-                {
-                    toremove.Add(ldr);
-                }
-                else
-                {
-                    ldr._Kind = next;
-                }
+                ldr._Kind = ldr.Kind.OnUpdate(ldr, Time, new _DriftoidInterface() { Driftoid = ldr, ToDelete = toremove });
             }
             foreach (LinkedDriftoid ldr in toremove)
             {
@@ -230,5 +228,10 @@ namespace Driftoid
         /// Changes the radius of the current driftoid.
         /// </summary>
         void ChangeRadius(double Radius);
+
+        /// <summary>
+        /// Removes the current driftoid.
+        /// </summary>
+        void Delete();
     }
 }

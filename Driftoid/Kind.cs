@@ -34,7 +34,39 @@ namespace Driftoid
         /// Updates the state of the driftoid as time passes. The returned value indicates the next state of the
         /// kind, if it has changed.
         /// </summary>
-        public virtual Kind Update(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
+        public virtual Kind OnUpdate(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
+        {
+            return this;
+        }
+
+        /// <summary>
+        /// Called when the parent of this driftoid delinks from it. This can be used to change the state of the kind.
+        /// </summary>
+        public virtual Kind OnParentDelink(LinkedDriftoid Driftoid, LinkedDriftoid Parent)
+        {
+            return this;
+        }
+
+        /// <summary>
+        /// Called when a child is delinked from this driftoid. This can be used to change the state of the kind.
+        /// </summary>
+        public virtual Kind OnChildDelink(LinkedDriftoid Driftoid, LinkedDriftoid Child)
+        {
+            return this;
+        }
+
+        /// <summary>
+        /// Called when this is added as a child of another driftoid. This can be used to change the state of the kind.
+        /// </summary>
+        public virtual Kind OnParentLink(LinkedDriftoid Driftoid, LinkedDriftoid Parent)
+        {
+            return this;
+        }
+
+        /// <summary>
+        /// Called when this acquires a new child driftoid. This can be used to change the state of the kind.
+        /// </summary>
+        public virtual Kind OnChildLink(int Index, LinkedDriftoid Driftoid, LinkedDriftoid Child)
         {
             return this;
         }

@@ -38,6 +38,7 @@ namespace Driftoid
             this._Source = Source;
             this._FinishTime = ReactionTime;
             this._Wait = true;
+            this._Aborted = false;
         }
 
         public override double LinkVisibility
@@ -48,10 +49,16 @@ namespace Driftoid
             }
         }
 
-        public override Kind Update(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
+        public override Kind OnUpdate(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
         {
             if (this._Wait)
             {
+                if (this._SafeAborted)
+                {
+                    // Safe abort, nothing is lost
+                    return this._Source;
+                }
+
                 bool ready = true;
                 foreach (LinkedDriftoid child in Driftoid.LinkedChildren)
                 {
@@ -76,7 +83,15 @@ namespace Driftoid
                 {
                     if (this._Product == null)
                     {
-                        return new ReactionCooldownKind();
+                        ReactionCooldownKind rck = new ReactionCooldownKind();
+
+                        // If the reaction can't continue, this driftoid is absorbed with no gain.
+                        if (this._Aborted)
+                        {
+                            rck._Wait = false;
+                        }
+
+                        return rck;
                     }
                     else
                     {
@@ -84,7 +99,7 @@ namespace Driftoid
                     }
                 }
             }
-            this._Source = this._Source.Update(Driftoid, Time, Interface);
+            this._Source = this._Source.OnUpdate(Driftoid, Time, Interface);
             return this;
         }
 
@@ -112,6 +127,31 @@ namespace Driftoid
             return false;
         }
 
+        public override Kind OnParentDelink(LinkedDriftoid Driftoid, LinkedDriftoid Parent)
+        {
+            if (this._Product == null)
+            {
+                this._Aborted = true;
+            }
+            return this;
+        }
+
+        public override Kind OnChildDelink(LinkedDriftoid Driftoid, LinkedDriftoid Child)
+        {
+            if (this._Wait)
+            {
+                this._SafeAborted = true;
+                LinkedDriftoid cur = Driftoid.LinkedParent;
+                ReactionWarmupKind rwk;
+                while (cur != null && (rwk = cur.Kind as ReactionWarmupKind) != null)
+                {
+                    rwk._SafeAborted = true;
+                    cur = cur.LinkedParent;
+                }
+            }
+            return this;
+        }
+
         public static void SetupTextures()
         {
             if (!_TexturesSetup)
@@ -129,6 +169,8 @@ namespace Driftoid
         private static bool _TexturesSetup;
         internal static int _WhiteTextureID;
 
+        private bool _SafeAborted;
+        private bool _Aborted;
         private bool _Wait;
         private double _Time;
         private double _FinishTime;
@@ -161,7 +203,7 @@ namespace Driftoid
             GL.Color4(1.0, 1.0, 1.0, 1.0);
         }
 
-        public override Kind Update(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
+        public override Kind OnUpdate(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
         {
             if (!this._Wait)
             {
@@ -169,7 +211,7 @@ namespace Driftoid
             }
             if (this._Time > Reaction.CooldownTime)
             {
-                return null;
+                Interface.Delete();
             }
             return this;
         }
@@ -221,7 +263,7 @@ namespace Driftoid
             }
         }
 
-        public override Kind Update(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
+        public override Kind OnUpdate(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
         {
             if (this._Final == null)
             {
@@ -259,7 +301,7 @@ namespace Driftoid
             }
             else
             {
-                this._Final.Update(Driftoid, Time, Interface);
+                this._Final.OnUpdate(Driftoid, Time, Interface);
                 this._Time += Time;
                 if (this._Time > Reaction.CooldownTime)
                 {

@@ -15,6 +15,7 @@ namespace Driftoid
     {
         public Window() : base(640, 480, GraphicsMode.Default, "Driftoid")
         {
+            this.VSync = VSyncMode.Off;
             this.WindowState = WindowState.Maximized;
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.Blend);
