@@ -9,10 +9,32 @@ namespace Driftoid
     public abstract class Kind
     {
         /// <summary>
+        /// Gets how long it takes to process a driftoid of this kind in a reaction.
+        /// </summary>
+        public virtual double ReactionTime
+        {
+            get
+            {
+                return 1.0;
+            }
+        }
+
+        /// <summary>
+        /// Gets if links should be shown on this kind.
+        /// </summary>
+        public virtual bool ShowLink
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
         /// Updates the state of the driftoid as time passes. The returned value indicates the next state of the
         /// kind, if it has changed.
         /// </summary>
-        public virtual Kind Update(double Time)
+        public virtual Kind Update(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
         {
             return this;
         }

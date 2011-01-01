@@ -22,26 +22,28 @@ namespace Driftoid
         /// </summary>
         public static void BeginReaction(Reaction Reaction)
         {
-            foreach (LinkedDriftoid ldr in Reaction.Target.FinalDescendants)
+            LinkedDriftoid target = Reaction.Target;
+            foreach (LinkedDriftoid ldr in target.Descendants)
             {
-                ldr._Kind = new ReactionWarmupKind(Reaction, ldr.Kind);
+                ldr._Kind = new ReactionWarmupKind(ldr.Kind.ReactionTime, null, ldr.Kind);
             }
+            target._Kind = new ReactionWarmupKind(target.Kind.ReactionTime, Reaction.Product, target.Kind);
         }
 
         /// <summary>
         /// Gets the final descendants (those without children) of this driftoid.
         /// </summary>
-        public IEnumerable<LinkedDriftoid> FinalDescendants
+        public IEnumerable<LinkedDriftoid> Leaves
         {
             get
             {
                 List<LinkedDriftoid> li = new List<LinkedDriftoid>();
-                this._WriteFinalDescendants(li);
+                this._WriteLeaves(li);
                 return li;
             }
         }
 
-        private void _WriteFinalDescendants(List<LinkedDriftoid> List)
+        private void _WriteLeaves(List<LinkedDriftoid> List)
         {
             if (this._LinkedChildren.Count == 0)
             {
@@ -51,8 +53,30 @@ namespace Driftoid
             {
                 foreach (LinkedDriftoid child in this._LinkedChildren)
                 {
-                    child._WriteFinalDescendants(List);
+                    child._WriteLeaves(List);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets all descendants of the driftoid, excluding itself.
+        /// </summary>
+        public IEnumerable<LinkedDriftoid> Descendants
+        {
+            get
+            {
+                List<LinkedDriftoid> li = new List<LinkedDriftoid>();
+                this._WriteDescendants(li);
+                return li;
+            }
+        }
+
+        private void _WriteDescendants(List<LinkedDriftoid> List)
+        {
+            foreach (LinkedDriftoid dr in this._LinkedChildren)
+            {
+                List.Add(dr);
+                dr._WriteDescendants(List);
             }
         }
 
@@ -160,33 +184,23 @@ namespace Driftoid
         /// </summary>
         private static _LinkerTexture _CreateTexture(_LinkerKey Key)
         {
-            double grabberlength = 1.0;
             double grabberwidth = Key.ChildBorderWidth;
             double handlelength = 0.4;
             double handlewidth = 0.1;
-            double grabbermaxangle = grabberlength / (Key.ChildRadius * 2.0);
+            double grabbermaxangle = Math.PI / 8;
 
             double maxheight = handlewidth / 2.0;
-            double maxgrabberwidth = Key.ChildBorderWidth;
-            if (grabbermaxangle > Math.PI / 2.0)
+
+            double innerwidth = Key.ChildRadius - grabberwidth;
+            double maxgrabberwidth = Key.ChildRadius - Math.Cos(grabbermaxangle) * innerwidth;
+            double posheight = Math.Sin(grabbermaxangle) * Key.ChildRadius;
+            if (posheight > maxheight)
             {
-                maxheight = Key.ChildRadius;
-                maxgrabberwidth = Key.ChildRadius * (1.0 - Math.Cos(grabbermaxangle));
-            }
-            else
-            {
-                maxgrabberwidth = Key.ChildRadius * (1.0 + Math.Cos(grabbermaxangle) * grabberwidth);
-                double posheight = Math.Sin(grabbermaxangle) * Key.ChildRadius;
-                if (posheight > maxheight)
-                {
-                    maxheight = posheight;
-                }
+                maxheight = posheight;
             }
 
             Vector size = new Vector(maxgrabberwidth + handlelength, maxheight * 2.0);
             double grabbercenter = -Key.ChildRadius + maxgrabberwidth;
-
-            double trans = Key.ChildRadius - grabberwidth;
 
             double midcenter = 0.5 * size.Y;
             int tex = Drawer.Create(delegate(Vector Point)
@@ -198,7 +212,7 @@ namespace Driftoid
                 double grabberdis = grabberdif.Length;
                 double grabberang = grabberdif.Angle;
 
-                if (grabberdis < trans)
+                if (grabberdis < innerwidth)
                 {
                     return Color.Transparent;
                 }

@@ -73,7 +73,7 @@ namespace Driftoid
                         {
                             Reaction r = new Reaction()
                             {
-                                Product = PrimitiveKind.Get(PrimitiveType.Iron).Constructor,
+                                Product = new NucleusKind(this._Player).Constructor,
                                 Target = ldr
                             };
                             LinkedDriftoid.BeginReaction(r);
@@ -105,7 +105,10 @@ namespace Driftoid
             {
                 if (ld != null && ld.LinkedParent != null)
                 {
-                    LinkedDriftoid.DrawLinker(ld.LinkedParent, ld);
+                    if (ld.Kind.ShowLink)
+                    {
+                        LinkedDriftoid.DrawLinker(ld.LinkedParent, ld);
+                    }
                 }
             }
 

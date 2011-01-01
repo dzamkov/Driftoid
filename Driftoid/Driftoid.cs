@@ -210,8 +210,8 @@ namespace Driftoid
             }
         }
 
-        private double _Radius;
-        private double _Mass;
+        internal double _Radius;
+        internal double _Mass;
         internal MotionState _MotionState;
         internal Kind _Kind;
     }

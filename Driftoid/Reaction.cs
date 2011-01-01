@@ -22,14 +22,9 @@ namespace Driftoid
         public DriftoidConstructor Product;
 
         /// <summary>
-        /// The amount of time in seconds it takes to convert a normal reactant into a transitional state.
-        /// </summary>
-        public const double WarmupTime = 1.0;
-
-        /// <summary>
         /// The amount of time in seconds it takes for a transitional state to be absorbed or transformed.
         /// </summary>
-        public const double CooldownTime = 1.0;
+        public const double CooldownTime = 0.2;
     }
 
     /// <summary>
@@ -37,16 +32,51 @@ namespace Driftoid
     /// </summary>
     public class ReactionWarmupKind : Kind
     {
-        public ReactionWarmupKind(Reaction Reaction, Kind Source)
+        public ReactionWarmupKind(double ReactionTime, DriftoidConstructor Product, Kind Source)
         {
-            this._Reaction = Reaction;
+            this._Product = Product;
             this._Source = Source;
+            this._FinishTime = ReactionTime;
+            this._Wait = true;
         }
 
-        public override Kind Update(double Time)
+        public override Kind Update(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
         {
-            this._Time += Time;
-            this._Source.Update(Time);
+            if (this._Wait)
+            {
+                bool ready = true;
+                foreach (LinkedDriftoid child in Driftoid.LinkedChildren)
+                {
+                    if (!(child.Kind is ReactionCooldownKind))
+                    {
+                        ready = false;
+                    }
+                }
+                if (ready)
+                {
+                    foreach (LinkedDriftoid child in Driftoid.LinkedChildren)
+                    {
+                        ((ReactionCooldownKind)child.Kind)._Wait = false;
+                    }
+                    this._Wait = false;
+                }
+            }
+            else
+            {
+                this._Time += Time;
+                if (this._Time > this._FinishTime)
+                {
+                    if (this._Product == null)
+                    {
+                        return new ReactionCooldownKind();
+                    }
+                    else
+                    {
+                        return new ReactionTransformKind(this._Product);
+                    }
+                }
+            }
+            this._Source = this._Source.Update(Driftoid, Time, Interface);
             return this;
         }
 
@@ -54,8 +84,8 @@ namespace Driftoid
         {
             SetupTextures();
             this._Source.Draw(Driftoid);
-            GL.Color4(1.0, 1.0, 1.0, this._Time / Reaction.WarmupTime);
-            Driftoid.DrawTexture(_InnerTextureID, 1.0, 0.0);
+            GL.Color4(1.0, 1.0, 1.0, this._Time / this._FinishTime);
+            Driftoid.DrawTexture(_WhiteTextureID, 1.0, 0.0);
             GL.Color4(1.0, 1.0, 1.0, 1.0);
         }
 
@@ -78,7 +108,7 @@ namespace Driftoid
         {
             if (!_TexturesSetup)
             {
-                _InnerTextureID = new Driftoid.SolidDrawer()
+                _WhiteTextureID = new Driftoid.SolidDrawer()
                 {
                     BorderColor = Color.RGB(1.0, 1.0, 1.0),
                     BorderSize = 0.0,
@@ -89,10 +119,160 @@ namespace Driftoid
         }
 
         private static bool _TexturesSetup;
-        private static int _InnerTextureID;
+        internal static int _WhiteTextureID;
 
+        private bool _Wait;
         private double _Time;
-        private Reaction _Reaction;
+        private double _FinishTime;
+        private DriftoidConstructor _Product;
         private Kind _Source;
+    }
+
+    /// <summary>
+    /// The kind of a driftoid as it disappears (from absorbtion? or something like that).
+    /// </summary>
+    public class ReactionCooldownKind : Kind
+    {
+        public ReactionCooldownKind()
+        {
+            this._Wait = true;
+        }
+
+        public override bool ShowLink
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override void Draw(Driftoid Driftoid)
+        {
+            GL.Color4(1.0, 1.0, 1.0, 1.0 - this._Time / Reaction.CooldownTime);
+            Driftoid.DrawTexture(ReactionWarmupKind._WhiteTextureID, 1.0, 0.0);
+            GL.Color4(1.0, 1.0, 1.0, 1.0);
+        }
+
+        public override Kind Update(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
+        {
+            if (!this._Wait)
+            {
+                this._Time += Time;
+            }
+            if (this._Time > Reaction.CooldownTime)
+            {
+                return null;
+            }
+            return this;
+        }
+
+        public override bool AllowLink(int Index, LinkedDriftoid This, LinkedDriftoid Other)
+        {
+            return false;
+        }
+
+        public override bool AllowLink(LinkedDriftoid This, LinkedDriftoid Other)
+        {
+            return false;
+        }
+
+        internal bool _Wait;
+        private double _Time;
+    }
+
+    /// <summary>
+    /// A kind for a driftoid that is changing from a transitional state into a concrete driftoid.
+    /// </summary>
+    public class ReactionTransformKind : Kind
+    {
+        public ReactionTransformKind(DriftoidConstructor Product)
+        {
+            this._Product = Product;
+        }
+
+        public override bool ShowLink
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override void Draw(Driftoid Driftoid)
+        {
+            if (this._Final == null)
+            {
+                Driftoid.DrawTexture(ReactionWarmupKind._WhiteTextureID, 1.0, 0.0);
+            }
+            else
+            {
+                this._Final.Draw(Driftoid);
+                GL.Color4(1.0, 1.0, 1.0, 1.0 - this._Time / Reaction.CooldownTime);
+                Driftoid.DrawTexture(ReactionWarmupKind._WhiteTextureID, 1.0, 0.0);
+                GL.Color4(1.0, 1.0, 1.0, 1.0);
+            }
+        }
+
+        public override Kind Update(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
+        {
+            if (this._Final == null)
+            {
+                double massadjustrate = 100.0 * Time;
+                double radiusadjustrate = 1.0 * Time;
+                double curmass = Driftoid.Mass;
+                double currad = Driftoid.Radius;
+                if (curmass > this._Product.Mass) curmass -= massadjustrate;
+                if (curmass < this._Product.Mass) curmass += massadjustrate;
+                if (currad > this._Product.Radius) currad -= radiusadjustrate;
+                if (currad < this._Product.Radius) currad += radiusadjustrate;
+                bool ready = true;
+                if (Math.Abs(curmass - this._Product.Mass) <= massadjustrate)
+                {
+                    curmass = this._Product.Mass;
+                }
+                else
+                {
+                    ready = false;
+                }
+                if (Math.Abs(currad - this._Product.Radius) <= radiusadjustrate)
+                {
+                    currad = this._Product.Radius;
+                }
+                else
+                {
+                    ready = false;
+                }
+                Interface.ChangeMass(curmass);
+                Interface.ChangeRadius(currad);
+                if (ready)
+                {
+                    this._Final = this._Product.Kind;
+                }
+            }
+            else
+            {
+                this._Final.Update(Driftoid, Time, Interface);
+                this._Time += Time;
+                if (this._Time > Reaction.CooldownTime)
+                {
+                    return this._Final;
+                }
+            }
+            return this;
+        }
+
+        public override bool AllowLink(int Index, LinkedDriftoid This, LinkedDriftoid Other)
+        {
+            return false;
+        }
+
+        public override bool AllowLink(LinkedDriftoid This, LinkedDriftoid Other)
+        {
+            return false;
+        }
+
+        private Kind _Final;
+        private DriftoidConstructor _Product;
+        private double _Time;
     }
 }

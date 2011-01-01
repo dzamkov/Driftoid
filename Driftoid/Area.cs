@@ -43,6 +43,21 @@ namespace Driftoid
             return null;
         }
 
+        private class _DriftoidInterface : IDriftoidInterface
+        {
+            public void ChangeMass(double Mass)
+            {
+                this.Driftoid._Mass = Mass;
+            }
+
+            public void ChangeRadius(double Radius)
+            {
+                this.Driftoid._Radius = Radius;
+            }
+
+            public LinkedDriftoid Driftoid;
+        }
+
         /// <summary>
         /// Updates the area by the specified time.
         /// </summary>
@@ -66,7 +81,7 @@ namespace Driftoid
             List<LinkedDriftoid> toremove = new List<LinkedDriftoid>();
             foreach (LinkedDriftoid ldr in this._Driftoids)
             {
-                Kind next = ldr.Kind.Update(Time);
+                Kind next = ldr.Kind.Update(ldr, Time, new _DriftoidInterface() { Driftoid = ldr });
                 if (next == null)
                 {
                     toremove.Add(ldr);
@@ -197,5 +212,22 @@ namespace Driftoid
         /// The driftoids that occupy the area.
         /// </summary>
         private List<LinkedDriftoid> _Driftoids;
+    }
+
+    /// <summary>
+    /// An interface that allows a driftoid to interact with the environment during update. These commands disallow
+    /// conflicting changes by different driftoids.
+    /// </summary>
+    public interface IDriftoidInterface
+    {
+        /// <summary>
+        /// Changes the mass of the current driftoid.
+        /// </summary>
+        void ChangeMass(double Mass);
+
+        /// <summary>
+        /// Changes the radius of the current driftoid.
+        /// </summary>
+        void ChangeRadius(double Radius);
     }
 }
