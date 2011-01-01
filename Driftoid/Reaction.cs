@@ -40,6 +40,14 @@ namespace Driftoid
             this._Wait = true;
         }
 
+        public override double LinkVisibility
+        {
+            get
+            {
+                return 1.0 - this._Time / this._FinishTime;
+            }
+        }
+
         public override Kind Update(LinkedDriftoid Driftoid, double Time, IDriftoidInterface Interface)
         {
             if (this._Wait)
@@ -138,11 +146,11 @@ namespace Driftoid
             this._Wait = true;
         }
 
-        public override bool ShowLink
+        public override double LinkVisibility
         {
             get
             {
-                return false;
+                return 0.0;
             }
         }
 
@@ -190,11 +198,11 @@ namespace Driftoid
             this._Product = Product;
         }
 
-        public override bool ShowLink
+        public override double LinkVisibility
         {
             get
             {
-                return false;
+                return this._Time / Reaction.CooldownTime;
             }
         }
 

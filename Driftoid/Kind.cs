@@ -20,13 +20,13 @@ namespace Driftoid
         }
 
         /// <summary>
-        /// Gets if links should be shown on this kind.
+        /// Gets how visible links to this driftoid are.
         /// </summary>
-        public virtual bool ShowLink
+        public virtual double LinkVisibility
         {
             get
             {
-                return true;
+                return 1.0;
             }
         }
 
