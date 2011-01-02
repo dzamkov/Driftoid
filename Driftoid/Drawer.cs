@@ -122,16 +122,6 @@ namespace Driftoid
                     });
                 }
             }
-            double itotalintensity = 1.0 / totalintensity;
-            for (int t = 0; t < this._Samples.Count; t++)
-            {
-                Sample orig = this._Samples[t];
-                this._Samples[t] = new Sample()
-                {
-                    Offset = orig.Offset,
-                    Intensity = orig.Intensity * itotalintensity
-                };
-            }
             this._Source = Source;
         }
 
@@ -143,6 +133,7 @@ namespace Driftoid
         public override Color AtPoint(Vector Point)
         {
             Color col = new Color();
+            double totalint = 0.0;
             foreach (Sample samp in this._Samples)
             {
                 Color sampcol = this._Source.AtPoint(Point + samp.Offset);
@@ -150,7 +141,13 @@ namespace Driftoid
                 col.R += sampcol.R * samp.Intensity;
                 col.G += sampcol.G * samp.Intensity;
                 col.B += sampcol.B * samp.Intensity;
+                totalint += samp.Intensity;
             }
+            double itotalint = 1.0 / totalint;
+            col.A *= itotalint;
+            col.R *= itotalint;
+            col.G *= itotalint;
+            col.B *= itotalint;
             return col;
         }
 

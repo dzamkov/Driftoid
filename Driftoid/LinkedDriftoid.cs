@@ -207,6 +207,7 @@ namespace Driftoid
             double handlelength = 0.4;
             double handlewidth = 0.1;
             double grabbermaxangle = Math.PI / 8;
+            double partangle = grabbermaxangle / 2.0;
 
             double maxheight = handlewidth / 2.0;
 
@@ -238,9 +239,13 @@ namespace Driftoid
                 if (grabberdis < Key.ChildRadius)
                 {
                     double angdif = Math.Abs(grabberang);
-                    if (angdif < grabbermaxangle)
+                    if (angdif < grabbermaxangle - partangle)
                     {
                         return Color.RGBA(0.9, 0.9, 0.9, 1.0);
+                    }
+                    if (angdif < grabbermaxangle)
+                    {
+                        return Color.RGBA(0.9, 0.9, 0.9, 0.5);
                     }
                 }
                 if (Math.Abs(Point.Y - midcenter) < handlewidth / 2.0)
