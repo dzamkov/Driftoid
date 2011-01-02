@@ -142,11 +142,21 @@ namespace Driftoid
             {
                 this._SafeAborted = true;
                 LinkedDriftoid cur = Driftoid.LinkedParent;
+                LinkedDriftoid last = cur;
                 ReactionWarmupKind rwk;
                 while (cur != null && (rwk = cur.Kind as ReactionWarmupKind) != null)
                 {
                     rwk._SafeAborted = true;
+                    last = cur;
                     cur = cur.LinkedParent;
+                }
+                foreach (LinkedDriftoid reactinvolved in last.Descendants)
+                {
+                    rwk = reactinvolved.Kind as ReactionWarmupKind;
+                    if (!rwk._SafeAborted)
+                    {
+                        rwk._Aborted = true;
+                    }
                 }
             }
             return this;
