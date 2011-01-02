@@ -38,6 +38,10 @@ namespace Driftoid
                 Driftoid.Make(
                     new NucleusKind(this._Player = new Player(Color.RGB(1.0, 0.0, 0.0))).Constructor,
                     new Vector(-6.0, 0.0)));
+            this._Area.Spawn(
+                Driftoid.Make(
+                    new WeightedKind(0).Constructor,
+                    new Vector(-6.0, 7.0)));
             this._Starfield = Starfield.CreateDefault(512, 5);
 
             this._View = new View(new Vector(), 0.0, 0.1);

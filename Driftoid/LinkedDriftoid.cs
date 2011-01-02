@@ -371,16 +371,15 @@ namespace Driftoid
                             }
                         }
                         B._Link(A, ind);
+                        return;
                     }
                 }
-                else
+
+                if (B._LinkedParent == null)
                 {
-                    if (B._LinkedParent == null)
+                    if (A._CanLink(B, out ind))
                     {
-                        if (A._CanLink(B, out ind))
-                        {
-                            A._Link(B, ind);
-                        }
+                        A._Link(B, ind);
                     }
                 }
             }

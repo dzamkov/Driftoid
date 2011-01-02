@@ -7,10 +7,50 @@ using System.Drawing.Imaging;
 namespace Driftoid
 {
     /// <summary>
-    /// Texture-related functions.
+    /// Represents a static texture in graphics memory. Mangement of textures can be completely handled by this class. Also contains texture-related functions.
     /// </summary>
-    public static class Texture
+    public class Texture
     {
+        private Texture()
+        {
+
+        }
+
+        /// <summary>
+        /// Gets the id of the texture.
+        /// </summary>
+        public int ID
+        {
+            get
+            {
+                if (this._ID < 0)
+                {
+                    using (Bitmap bm = new Bitmap(256, 256))
+                    {
+                        this._Source.Draw(bm);
+                        this._ID = Create(bm);
+                    }
+                }
+                return this._ID;
+            }
+        }
+
+        /// <summary>
+        /// Defines a texture based on a drawer source.
+        /// </summary>
+        /// <param name="AspectRatio">The target aspect ratio for the image.</param>
+        /// <param name="Detail">A relative estimate of the detail level required for the texture.</param>
+        public static Texture Define(Drawer Source, double AspectRatio, double Detail)
+        {
+            return new Texture()
+            {
+                _Source = Source,
+                _AspectRatio = AspectRatio,
+                _Detail = Detail,
+                _ID = -1
+            };
+        }
+
         /// <summary>
         /// Binds the specified 2D texture.
         /// </summary>
@@ -47,5 +87,10 @@ namespace Driftoid
             Source.UnlockBits(bd);
             return id;
         }
+
+        private Drawer _Source;
+        private double _AspectRatio;
+        private double _Detail;
+        private int _ID;
     }
 }
