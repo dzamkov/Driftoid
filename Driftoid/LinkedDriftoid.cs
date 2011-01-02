@@ -39,11 +39,14 @@ namespace Driftoid
         public static void BeginReaction(Reaction Reaction)
         {
             LinkedDriftoid target = Reaction.Target;
-            foreach (LinkedDriftoid ldr in target.Descendants)
+            if (target._LinkedParent != null)
             {
-                ldr._Kind = new ReactionWarmupKind(ldr.Kind.ReactionTime, null, ldr.Kind);
+                foreach (LinkedDriftoid ldr in target.Descendants)
+                {
+                    ldr._Kind = new ReactionWarmupKind(ldr.Kind.ReactionTime, null, ldr.Kind);
+                }
+                target._Kind = new ReactionWarmupKind(target.Kind.ReactionTime, Reaction.Product, target.Kind);
             }
-            target._Kind = new ReactionWarmupKind(target.Kind.ReactionTime, Reaction.Product, target.Kind);
         }
 
         /// <summary>
@@ -164,7 +167,7 @@ namespace Driftoid
 
             Vector dif = Parent.Position - Child.Position;
 
-            Texture.Bind2D(lt.Texture);
+            Texture.Bind2D(lt.Texture.ID);
             GL.PushMatrix();
             GL.Translate(Child.Position.X, Child.Position.Y, 0.0);
             GL.Rotate(dif.Angle * 180 / Math.PI, 0.0, 0.0, 1.0);
@@ -190,7 +193,7 @@ namespace Driftoid
         }
         private struct _LinkerTexture
         {
-            public int Texture;
+            public Texture Texture;
             public Vector Size;
             public double ChildCenterOffset;
         }
@@ -219,7 +222,7 @@ namespace Driftoid
             double grabbercenter = -Key.ChildRadius + maxgrabberwidth;
 
             double midcenter = 0.5 * size.Y;
-            int tex = Drawer.Create(delegate(Vector Point)
+            Drawer dr = Drawer.Create(delegate(Vector Point)
             {
                 Point.X *= size.X;
                 Point.Y *= size.Y;
@@ -246,12 +249,12 @@ namespace Driftoid
                     return Color.RGBA(0.9, 0.9, 0.9, 1.0 - a * a);
                 }
                 return Color.Transparent;
-            }).CreateTexture(256);
+            });
             return new _LinkerTexture()
             {
                 Size = size,
                 ChildCenterOffset = grabbercenter,
-                Texture = tex
+                Texture = Texture.Define(dr, size.X / size.Y, 0.7)
             };
         }
 
@@ -318,7 +321,7 @@ namespace Driftoid
         internal static void _CorrectLink(LinkedDriftoid Parent, LinkedDriftoid Child, int Iter, Vector Difference, double Distance)
         {
             // Is there a problem
-            if (Math.Abs(Distance - Parent.Radius - Child.Radius) > 0.01)
+            if (Math.Abs(Distance - Parent.Radius - Child.Radius) > 0.001)
             {
                 // Equivalent to another problem...
                 Driftoid._CollisionResponse(Parent, Child, Difference, Distance, 1.0);

@@ -23,7 +23,7 @@ namespace Driftoid
         /// </summary>
         public double GetLevelRadius(int Level)
         {
-            return Math.Sqrt(GetLevelMass(Level)) / 3.0;
+            return Math.Sqrt(GetLevelMass(Level)) / 2.0;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Driftoid
         /// </summary>
         public double GetLevelMass(int Level)
         {
-            return 10.0 * (double)(Level + 1);
+            return 8.0 * (double)(Level + 1);
         }
 
         /// <summary>
@@ -76,6 +76,33 @@ namespace Driftoid
                 }
                 return InnerColor;
             }
+        }
+
+        private class _Recipe : Recipe
+        {
+            public override DriftoidConstructor GetProduct(Structure Structure)
+            {
+                int l = 0;
+                while (true)
+                {
+                    if (!Structure.IsPrimitive(PrimitiveType.Carbon)) return null;
+                    if (Structure.SubstructureAmount != 3) return null;
+                    Structure[] structures = Structure.Substructures;
+                    if (!(
+                        structures[0].IsPrimitive(PrimitiveType.Iron) && structures[0].IsLeaf &&
+                        structures[2].IsPrimitive(PrimitiveType.Iron) && structures[2].IsLeaf
+                        )) return null;
+                    if (structures[1].IsPrimitive(PrimitiveType.Hydrogen) && structures[1].IsLeaf)
+                        return new WeightedKind(l).Constructor;
+                    Structure = structures[1];
+                    l++;
+                }
+            }
+        }
+
+        public static void RegisterRecipes(List<Recipe> Recipes)
+        {
+            Recipes.Add(new _Recipe());
         }
 
         public static readonly Texture Texture = Texture.Define(new _Drawer(), 1.0, 1.0);

@@ -23,7 +23,7 @@ namespace Driftoid
 
             this._Area = new Area();
 
-            for (int x = 0; x < 4; x++)
+            for (int x = 0; x < 6; x++)
             {
                 for (int y = 0; y < 6; y++)
                 {
@@ -37,11 +37,11 @@ namespace Driftoid
             this._Area.Spawn(
                 Driftoid.Make(
                     new NucleusKind(this._Player = new Player(Color.RGB(1.0, 0.0, 0.0))).Constructor,
-                    new Vector(-6.0, 0.0)));
+                    new Vector(-8.0, 0.0)));
             this._Area.Spawn(
                 Driftoid.Make(
                     new WeightedKind(0).Constructor,
-                    new Vector(-6.0, 7.0)));
+                    new Vector(-8.0, 7.0)));
             this._Starfield = Starfield.CreateDefault(512, 5);
 
             this._View = new View(new Vector(), 0.0, 0.1);
@@ -76,12 +76,16 @@ namespace Driftoid
                     {
                         if (this._Area.HasLinkControl(this._Player, ldr))
                         {
-                            Reaction r = new Reaction()
+                            DriftoidConstructor product = Recipe.Master.GetProduct(new Structure(ldr));
+                            if (product != null)
                             {
-                                Product = PrimitiveKind.Get(PrimitiveType.Iron).Constructor,
-                                Target = ldr
-                            };
-                            LinkedDriftoid.BeginReaction(r);
+                                Reaction r = new Reaction()
+                                {
+                                    Product = product,
+                                    Target = ldr
+                                };
+                                LinkedDriftoid.BeginReaction(r);
+                            }
                         }
                     }
                 }

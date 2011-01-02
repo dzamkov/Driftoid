@@ -27,8 +27,12 @@ namespace Driftoid
                 {
                     using (Bitmap bm = new Bitmap(256, 256))
                     {
-                        this._Source.Draw(bm);
-                        this._ID = Create(bm);
+                        BitmapData bd = bm.LockBits(
+                            new Rectangle(0, 0, bm.Width, bm.Height), 
+                            ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        Drawer.Antialias(this._Source, 2.0 / 256.0).Draw(bd, bm.Width, bm.Height);
+                        this._ID = Create(bd, bm.Width, bm.Height, true);
+                        bm.UnlockBits(bd);
                     }
                 }
                 return this._ID;
@@ -64,28 +68,52 @@ namespace Driftoid
         /// </summary>
         public static int Create(Bitmap Source)
         {
-            int id = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, id);
-
             BitmapData bd = Source.LockBits(
                 new Rectangle(0, 0, Source.Width, Source.Height),
                 ImageLockMode.ReadOnly,
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-            GL.TexEnv(TextureEnvTarget.TextureEnv,
-                TextureEnvParameter.TextureEnvMode,
-                (float)TextureEnvMode.Modulate);
-
-            GL.TexImage2D(TextureTarget.Texture2D,
-                0, PixelInternalFormat.Rgba,
-                bd.Width, bd.Height, 0,
-                OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, bd.Scan0);
-
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            int id = Create(bd, Source.Width, Source.Height, false);
 
             Source.UnlockBits(bd);
             return id;
+        }
+
+        /// <summary>
+        /// Creates a texture for a bitmap, with higher performance and more control.
+        /// </summary>
+        public static int Create(BitmapData Data, int Width, int Height, bool Mipmap)
+        {
+            int id = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, id);
+            GL.TexEnv(TextureEnvTarget.TextureEnv,
+                TextureEnvParameter.TextureEnvMode,
+                (float)TextureEnvMode.Modulate);
+            
+            GL.TexImage2D(TextureTarget.Texture2D,
+                0, PixelInternalFormat.Rgba,
+                Width, Height, 0,
+                OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, Data.Scan0);
+
+            if (Mipmap)
+            {
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            }
+            else
+            {
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            }
+            return id;
+        }
+
+        /// <summary>
+        /// Gets if a number is a power of two.
+        /// </summary>
+        public static bool IsPowerOfTwo(int Number)
+        {
+            return (Number & (Number - 1)) == 0;
         }
 
         private Drawer _Source;

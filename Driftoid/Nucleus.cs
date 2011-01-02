@@ -21,7 +21,7 @@ namespace Driftoid
         {
             get
             {
-                return new DriftoidConstructor(this, 3.0, 20.0);
+                return new DriftoidConstructor(this, 3.0, 40.0);
             }
         }
 
@@ -73,7 +73,7 @@ namespace Driftoid
         {
             get
             {
-                return 9.0;
+                return 18.0;
             }
         }
 
@@ -84,7 +84,7 @@ namespace Driftoid
         {
             get
             {
-                return 20.0;
+                return 30.0;
             }
         }
 

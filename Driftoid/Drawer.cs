@@ -18,17 +18,26 @@ namespace Driftoid
         /// <summary>
         /// Draws to a bitmap, completely overwriting it.
         /// </summary>
-        public unsafe void Draw(Bitmap Bitmap)
+        public void Draw(Bitmap Bitmap)
         {
             BitmapData bd = Bitmap.LockBits(
                 new Rectangle(0, 0, Bitmap.Width, Bitmap.Height), 
                 ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-            Vector delta = new Vector(1.0 / (double)Bitmap.Width, 1.0 / (double)Bitmap.Height);
+            this.Draw(bd, Bitmap.Width, Bitmap.Height);
+            Bitmap.UnlockBits(bd);
+        }
+
+        /// <summary>
+        /// Draws to bitmap data.
+        /// </summary>
+        public unsafe void Draw(BitmapData Data, int Width, int Height)
+        {
+            Vector delta = new Vector(1.0 / (double)Width, 1.0 / (double)Height);
             Vector initial = delta * 0.5;
-            byte* dataloc = (byte*)bd.Scan0.ToPointer();
-            for (int y = 0; y < Bitmap.Width; y++)
+            byte* dataloc = (byte*)Data.Scan0.ToPointer();
+            for (int y = 0; y < Width; y++)
             {
-                for (int x = 0; x < Bitmap.Height; x++)
+                for (int x = 0; x < Height; x++)
                 {
                     Vector point = initial + new Vector((double)x * delta.X, (double)y * delta.Y);
                     Color col = this.AtPoint(point);
@@ -39,8 +48,6 @@ namespace Driftoid
                     dataloc += 4;
                 }
             }
-
-            Bitmap.UnlockBits(bd);
         }
 
         /// <summary>

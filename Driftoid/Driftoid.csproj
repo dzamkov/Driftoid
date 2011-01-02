@@ -52,6 +52,7 @@
     <Compile Include="Primitive.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Reaction.cs" />
+    <Compile Include="Recipe.cs" />
     <Compile Include="Starfield.cs" />
     <Compile Include="Texture.cs" />
     <Compile Include="Vector.cs" />
