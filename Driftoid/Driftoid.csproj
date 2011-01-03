@@ -47,6 +47,7 @@
     <Compile Include="Driftoid.cs" />
     <Compile Include="Kind.cs" />
     <Compile Include="LinkedDriftoid.cs" />
+    <Compile Include="Mobile.cs" />
     <Compile Include="Nucleus.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Primitive.cs" />

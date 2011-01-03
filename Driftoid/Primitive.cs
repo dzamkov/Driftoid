@@ -32,7 +32,7 @@ namespace Driftoid
             int texid;
             if (!_Textures.TryGetValue(this._Type, out texid))
             {
-                _Textures[this._Type] = texid = _Visuals[(int)this._Type].CreateTexture();
+                _Textures[this._Type] = texid = _Visuals[(int)this._Type].CreateTexture((int)this._Type);
             }
             Driftoid.DrawTexture(texid, 1.0, 0.0);
         }
@@ -69,14 +69,9 @@ namespace Driftoid
             public Color TextColor;
 
             /// <summary>
-            /// The text in the middle of the driftoid.
-            /// </summary>
-            public string Text;
-
-            /// <summary>
             /// Creates a texture for a driftoid of this type.
             /// </summary>
-            public int CreateTexture()
+            public int CreateTexture(int TypeIndex)
             {
                 int texsize = 256;
                 using (Bitmap bm = new Bitmap(texsize, texsize))
@@ -89,12 +84,13 @@ namespace Driftoid
                         {
                             using (Brush b = new SolidBrush(this.TextColor))
                             {
-                                SizeF strsize = g.MeasureString(this.Text, f);
+                                string text = _Symbols[TypeIndex];
+                                SizeF strsize = g.MeasureString(text, f);
 
                                 // Try centering the text in the bubble
                                 float x = actualsize * 0.5f - strsize.Width * 0.5f;
                                 float y = actualsize * 0.5f - strsize.Height * 0.5f;
-                                g.DrawString(this.Text, f, b, x, y);
+                                g.DrawString(text, f, b, x, y);
 
                             }
                         }
@@ -150,6 +146,23 @@ namespace Driftoid
             return false;
         }
 
+        /// <summary>
+        /// Gets the symbol for the specified primitive type.
+        /// </summary>
+        public static string GetSymbol(PrimitiveType Type)
+        {
+            return _Symbols[(int)Type];
+        }
+
+        private static readonly string[] _Symbols = new string[] {
+            "C",
+            "N",
+            "O",
+            "H",
+            "Fe",
+            "S"
+        };
+
         private static readonly double[] _Masses = new double[] {
             0.3,
             0.4,
@@ -173,37 +186,31 @@ namespace Driftoid
         /// </summary>
         private static readonly _Visual[] _Visuals = new _Visual[] { new _Visual() 
             {
-                Text = "C",
                 BorderColor = Color.RGB(0.5, 0.2, 0.2),
                 InteriorColor = Color.RGB(0.7, 0.4, 0.4),
                 TextColor = Color.RGB(0.6, 0.2, 0.2)
             }, new _Visual() 
             {
-                Text = "N",
                 BorderColor = Color.RGB(0.2, 0.5, 0.2),
                 InteriorColor = Color.RGB(0.4, 0.7, 0.4),
                 TextColor = Color.RGB(0.2, 0.6, 0.2)
             }, new _Visual() 
             {
-                Text = "O",
                 BorderColor = Color.RGB(0.55, 0.55, 0.55),
                 InteriorColor = Color.RGB(0.7, 0.7, 0.7),
                 TextColor = Color.RGB(0.45, 0.45, 0.45)
             }, new _Visual() 
             {
-                Text = "H",
                 BorderColor = Color.RGB(0.0, 0.2, 0.7),
                 InteriorColor = Color.RGB(0.2, 0.4, 0.7),
                 TextColor = Color.RGB(0.0, 0.2, 0.7)
             }, new _Visual() 
             {
-                Text = "Fe",
                 BorderColor = Color.RGB(0.7, 0.7, 0.7),
                 InteriorColor = Color.RGB(0.4, 0.4, 0.4),
                 TextColor = Color.RGB(0.8, 0.8, 0.8)
             }, new _Visual()
             {
-                Text = "S",
                 BorderColor = Color.RGB(0.7, 0.7, 0.0),
                 InteriorColor = Color.RGB(0.8, 0.8, 0.4),
                 TextColor = Color.RGB(0.6, 0.6, 0)

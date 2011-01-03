@@ -85,16 +85,14 @@ namespace Driftoid
                 int l = 0;
                 while (true)
                 {
-                    if (!Structure.IsPrimitive(PrimitiveType.Carbon)) return null;
-                    if (Structure.SubstructureAmount != 3) return null;
-                    Structure[] structures = Structure.Substructures;
-                    if (!(
-                        structures[0].IsPrimitive(PrimitiveType.Iron) && structures[0].IsLeaf &&
-                        structures[2].IsPrimitive(PrimitiveType.Iron) && structures[2].IsLeaf
-                        )) return null;
-                    if (structures[1].IsPrimitive(PrimitiveType.Hydrogen) && structures[1].IsLeaf)
+                    Structure[] vars = new Structure[1];
+                    if (!Recipe.Match(MatchDirection.Left, "Fe?Fe", Structure, vars)) return null;
+                    Structure var = vars[0];
+                    if (Recipe.Match(MatchDirection.Left, "H", Structure, vars))
+                    {
                         return new WeightedKind(l).Constructor;
-                    Structure = structures[1];
+                    }
+                    Structure = var;
                     l++;
                 }
             }

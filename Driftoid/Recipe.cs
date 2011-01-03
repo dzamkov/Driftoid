@@ -82,10 +82,120 @@ namespace Driftoid
     }
 
     /// <summary>
+    /// A direction a recipe can be matched in. (Recipes are rotationally symetrical).
+    /// </summary>
+    public enum MatchDirection
+    {
+        Left,
+        Right
+    }
+
+    /// <summary>
     /// Represents a possible conversion of reactants to a product during a reaction.
     /// </summary>
     public abstract class Recipe
     {
+        /// <summary>
+        /// Matches the specified structure to a pattern string in either direction.
+        /// </summary>
+        public static bool Match(string PatternString, Structure Structure, Structure[] Variables, out MatchDirection Direction)
+        {
+            int si = 0;
+            int vi = 0;
+            if (Match(PatternString, ref si, Structure, false, Variables, ref vi))
+            {
+                Direction = MatchDirection.Left;
+                return true;
+            }
+            if (Match(PatternString, ref si, Structure, true, Variables, ref vi))
+            {
+                Direction = MatchDirection.Right;
+                return true;
+            }
+            Direction = MatchDirection.Left;
+            return false;
+        }
+
+        /// <summary>
+        /// Matches the specified structure to a pattern string in the specified direction.
+        /// </summary>
+        public static bool Match(MatchDirection Direction, string PatternString, Structure Structure, Structure[] Variables)
+        {
+            int si = 0;
+            int vi = 0;
+            if (Direction == MatchDirection.Left)
+            {
+                return Match(PatternString, ref si, Structure, false, Variables, ref vi);
+            }
+            else
+            {
+                return Match(PatternString, ref si, Structure, true, Variables, ref vi);
+            }
+        }
+
+        /// <summary>
+        /// Gets if the specified structure matches the pattern string (which defines a relation of primitive kinds in a structure).
+        /// </summary>
+        public static bool Match(string PatternString, ref int StringIndex, Structure Structure, bool ReverseStructure, Structure[] Variables, ref int VariableIndex)
+        {
+            PrimitiveKind pk = Structure.RootKind as PrimitiveKind;
+            if (pk != null)
+            {
+                PrimitiveType type = pk.Type;
+                string sym = PrimitiveKind.GetSymbol(type);
+                if (PatternString[0] == '?')
+                {
+                    Variables[VariableIndex] = Structure;
+                    VariableIndex++;
+                    StringIndex++;
+                    return true;
+                }
+                for (int t = 0; t < sym.Length; t++)
+                {
+                    if (PatternString[StringIndex] != sym[t])
+                    {
+                        return false;
+                    }
+                    StringIndex++;
+                }
+                if (PatternString[StringIndex] == '(')
+                {
+                    Structure[] subs = Structure.Substructures;
+                    if (ReverseStructure)
+                    {
+                        for (int t = subs.Length - 1; t >= 0; t--)
+                        {
+                            if (!Match(PatternString, ref StringIndex, subs[t], true, Variables, ref VariableIndex))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int t = 0; t < subs.Length; t++)
+                        {
+                            if (!Match(PatternString, ref StringIndex, subs[t], false, Variables, ref VariableIndex))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    if (PatternString[StringIndex] != ')')
+                    {
+                        return false;
+                    }
+                    StringIndex++;
+                    return true;
+                }
+                return Structure.SubstructureAmount == 0;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         /// <summary>
         /// Gets the product this recipe would produce given the specified structure. Returns null if this recipe has no product for the structure.
         /// </summary>
