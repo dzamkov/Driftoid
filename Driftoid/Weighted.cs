@@ -82,18 +82,21 @@ namespace Driftoid
         {
             public override DriftoidConstructor GetProduct(Structure Structure)
             {
-                int l = 0;
-                while (true)
+                int l;
+                if (Recipe.MatchTerminatedChain(MatchDirection.Left, "Fe?Fe", "H", Structure, out l))
                 {
-                    Structure[] vars = new Structure[1];
-                    if (!Recipe.Match(MatchDirection.Left, "Fe?Fe", Structure, vars)) return null;
-                    Structure var = vars[0];
-                    if (Recipe.Match(MatchDirection.Left, "H", Structure, vars))
+                    if (l > 0)
                     {
-                        return new WeightedKind(l).Constructor;
+                        return new WeightedKind(l - 1).Constructor;
                     }
-                    Structure = var;
-                    l++;
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    return null;
                 }
             }
         }

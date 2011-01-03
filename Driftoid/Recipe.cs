@@ -96,6 +96,28 @@ namespace Driftoid
     public abstract class Recipe
     {
         /// <summary>
+        /// Matches a chain of primitives. The pattern string should include one variable indicating where it should continue. Gets the amount of patterns that appear
+        /// before the termination string.
+        /// </summary>
+        public static bool MatchTerminatedChain(MatchDirection Direction, string PatternString, string TerminationString, Structure Structure, out int Amount)
+        {
+            Amount = 0;
+            while (true)
+            {
+                Structure[] vars = new Structure[1];
+                if (Match(Direction, PatternString, Structure, vars))
+                {
+                    Amount++;
+                    Structure = vars[0];
+                }
+                else
+                {
+                    return Match(Direction, TerminationString, Structure, null);
+                }
+            }
+        }
+
+        /// <summary>
         /// Matches the specified structure to a pattern string in either direction.
         /// </summary>
         public static bool Match(string PatternString, Structure Structure, Structure[] Variables, out MatchDirection Direction)
@@ -107,6 +129,8 @@ namespace Driftoid
                 Direction = MatchDirection.Left;
                 return true;
             }
+            si = 0;
+            vi = 0;
             if (Match(PatternString, ref si, Structure, true, Variables, ref vi))
             {
                 Direction = MatchDirection.Right;
@@ -143,7 +167,7 @@ namespace Driftoid
             {
                 PrimitiveType type = pk.Type;
                 string sym = PrimitiveKind.GetSymbol(type);
-                if (PatternString[0] == '?')
+                if (PatternString[StringIndex] == '?')
                 {
                     Variables[VariableIndex] = Structure;
                     VariableIndex++;
@@ -152,14 +176,15 @@ namespace Driftoid
                 }
                 for (int t = 0; t < sym.Length; t++)
                 {
-                    if (PatternString[StringIndex] != sym[t])
+                    if (StringIndex >=  PatternString.Length || PatternString[StringIndex] != sym[t])
                     {
                         return false;
                     }
                     StringIndex++;
                 }
-                if (PatternString[StringIndex] == '(')
+                if (StringIndex < PatternString.Length && PatternString[StringIndex] == '(')
                 {
+                    StringIndex++;
                     Structure[] subs = Structure.Substructures;
                     if (ReverseStructure)
                     {
