@@ -89,6 +89,42 @@ namespace Driftoid
         }
 
         /// <summary>
+        /// Gets the reaction this driftoid is currently in, or null if not in a reaction.
+        /// </summary>
+        public Reaction Reaction
+        {
+            get
+            {
+                return this._CurrentReaction;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if neither this, nor its descendants are currently in reactions.
+        /// </summary>
+        public bool ReactionClear
+        {
+            get
+            {
+                if (this._CurrentReaction != null)
+                {
+                    return false;
+                }
+                else
+                {
+                    foreach (LinkedDriftoid ld in this._LinkedChildren)
+                    {
+                        if (!ld.ReactionClear)
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+
+        /// <summary>
         /// Completely removes all links from the driftoid, without correcting any links on this driftoid, with the
         /// expectation that this driftoid will never be used again.
         /// </summary>
@@ -102,22 +138,6 @@ namespace Driftoid
             {
                 ldr._LinkedParent = null;
             }
-        }
-
-        /// <summary>
-        /// Causes a reaction to start on its target driftoid.
-        /// </summary>
-        public static void BeginReaction(Reaction Reaction)
-        {
-            /*LinkedDriftoid target = Reaction.Target;
-            if (target._LinkedParent != null)
-            {
-                foreach (LinkedDriftoid ldr in target.Descendants)
-                {
-                    ldr._Kind = new ReactionWarmupKind(ldr.Kind.ReactionTime, null, ldr.Kind);
-                }
-                target._Kind = new ReactionWarmupKind(target.Kind.ReactionTime, Reaction.Product, target.Kind);
-            }*/
         }
 
         /// <summary>
@@ -252,6 +272,29 @@ namespace Driftoid
             GL.Vertex2(1.0f, -1.0f); GL.TexCoord2(0f, 1f);
             GL.End();
             GL.PopMatrix();
+        }
+
+        /// <summary>
+        /// Gets a visual for a linker between to linked driftoids.
+        /// </summary>
+        public static Visual GetLinkerVisual(LinkedDriftoid Parent, LinkedDriftoid Child)
+        {
+            return new _LinkerVisual()
+            {
+                Parent = Parent,
+                Child = Child
+            };
+        }
+
+        private class _LinkerVisual : Visual
+        {
+            public override void Draw()
+            {
+                DrawLinker(this.Parent, this.Child);
+            }
+
+            public LinkedDriftoid Parent;
+            public LinkedDriftoid Child;
         }
 
         /// <summary>
@@ -485,5 +528,6 @@ namespace Driftoid
 
         internal LinkedDriftoid _LinkedParent;
         internal List<LinkedDriftoid> _LinkedChildren;
+        internal Reaction _CurrentReaction;
     }
 }

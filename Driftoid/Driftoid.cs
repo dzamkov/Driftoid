@@ -19,6 +19,24 @@ namespace Driftoid
             this._Radius = Radius;
         }
 
+        private class _MaskDrawer : Drawer
+        {
+            public override Color AtPoint(Vector Point)
+            {
+                double dis = (Point - new Vector(0.5, 0.5)).Length;
+                if (dis <= 0.5)
+                {
+                    return Color.RGB(1.0, 1.0, 1.0);
+                }
+                return Color.RGBA(1.0, 1.0, 1.0, 0.0);
+            }
+        }
+
+        /// <summary>
+        /// A texture for a circular mask (using alpha values) in the shape of driftoids.
+        /// </summary>
+        public static readonly Texture Mask = Texture.Define(new _MaskDrawer(), 1.0, 0.2);
+
         /// <summary>
         /// Creates a driftoid using a driftoid constructor.
         /// </summary>

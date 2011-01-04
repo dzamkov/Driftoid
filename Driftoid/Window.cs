@@ -74,9 +74,10 @@ namespace Driftoid
                     LinkedDriftoid ldr = this._Area.Pick(mousepos);
                     if (ldr != null)
                     {
-                        if (this._Area.HasLinkControl(this._Player, ldr))
+                        if (ldr.ReactionClear && this._Area.HasLinkControl(this._Player, ldr))
                         {
-                            DriftoidConstructor product = Recipe.Master.GetProduct(new Structure(ldr));
+                            //DriftoidConstructor product = Recipe.Master.GetProduct(new Structure(ldr));
+                            DriftoidConstructor product = PrimitiveDriftoid.GetConstructor(PrimitiveType.Sulfur);
                             if (product != null)
                             {
                                 Reaction r = new Reaction()
@@ -84,7 +85,7 @@ namespace Driftoid
                                     Product = product,
                                     Target = ldr
                                 };
-                                LinkedDriftoid.BeginReaction(r);
+                                this._Area.BeginReaction(r);
                             }
                         }
                     }
@@ -106,20 +107,9 @@ namespace Driftoid
             this._View.Setup(aspect);
 
             Visual.SetupDraw();
-            foreach (LinkedDriftoid d in this._Area.Driftoids)
+            foreach (Visual v in this._Area.GetVisuals())
             {
-                Visual v = d.Visual;
-                if (v != null)
-                {
-                    v.Draw();
-                }
-            }
-            foreach (LinkedDriftoid ld in this._Area.Driftoids)
-            {
-                if (ld != null && ld.LinkedParent != null)
-                {
-                    LinkedDriftoid.DrawLinker(ld.LinkedParent, ld);
-                }
+                v.Draw();
             }
 
             this.SwapBuffers();

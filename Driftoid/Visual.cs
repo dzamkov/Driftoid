@@ -49,6 +49,33 @@ namespace Driftoid
     }
 
     /// <summary>
+    /// A dynamicly changing visual.
+    /// </summary>
+    public abstract class Effect : Visual
+    {
+        /// <summary>
+        /// Updates the state of the effect by the given time.
+        /// </summary>
+        public abstract void Update(double Time, IEffectInterface Interface);
+    }
+
+    /// <summary>
+    /// An interface given to effects as they update.
+    /// </summary>
+    public interface IEffectInterface
+    {
+        /// <summary>
+        /// Deletes the current effect.
+        /// </summary>
+        void Delete();
+
+        /// <summary>
+        /// Spawns a new effect.
+        /// </summary>
+        void Spawn(Effect Effect);
+    }
+
+    /// <summary>
     /// A simple visual that draws an oriented texture in the specified location.
     /// </summary>
     public class SimpleVisual : Visual

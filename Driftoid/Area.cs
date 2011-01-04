@@ -14,6 +14,8 @@ namespace Driftoid
         {
             this._DriftCommands = new Dictionary<Player, DriftCommand>();
             this._Driftoids = new List<LinkedDriftoid>();
+            this._Effects = new List<Effect>();
+            this._Reactions = new List<Reaction>();
         }
 
         /// <summary>
@@ -43,6 +45,51 @@ namespace Driftoid
             return null;
         }
 
+        private class _EffectInterface : IEffectInterface
+        {
+            public void Delete()
+            {
+                this.ToDelete.Add(Effect);
+            }
+
+            public void Spawn(Effect Effect)
+            {
+                this.ToAdd.Add(Effect);
+            }
+
+            public Effect Effect;
+            public List<Effect> ToDelete;
+            public List<Effect> ToAdd;
+        }
+
+        /// <summary>
+        /// Updates the effects in the area. This is implicitly done by Update.
+        /// </summary>
+        public void UpdateEffects(double Time)
+        {
+            List<Effect> todelete = new List<Effect>();
+            List<Effect> toadd = new List<Effect>();
+            _EffectInterface i = new _EffectInterface()
+            {
+                ToAdd = toadd,
+                ToDelete = todelete
+            };
+
+            foreach (Effect e in this._Effects)
+            {
+                i.Effect = e;
+                e.Update(Time, i);
+            }
+            foreach (Effect e in todelete)
+            {
+                this._Effects.Remove(e);
+            }
+            foreach (Effect e in toadd)
+            {
+                this._Effects.Add(e);
+            }
+        }
+
         private class _DriftoidInterface : IDriftoidInterface
         {
             public void ChangeMass(double Mass)
@@ -69,6 +116,13 @@ namespace Driftoid
         /// </summary>
         public void Update(double Time)
         {
+            // Reactions
+            List<LinkedDriftoid> toremove = new List<LinkedDriftoid>();
+            foreach (Reaction r in this._Reactions)
+            {
+                r._Update(Time, toremove, this._Effects);
+            }
+
             // Drift commands
             foreach (LinkedDriftoid dr in this._Driftoids)
             {
@@ -84,7 +138,6 @@ namespace Driftoid
             }
 
             // Update state
-            List<LinkedDriftoid> toremove = new List<LinkedDriftoid>();
             foreach (LinkedDriftoid ldr in this._Driftoids)
             {
                 ldr.OnUpdate(Time, new _DriftoidInterface() { Driftoid = ldr, ToDelete = toremove });
@@ -140,6 +193,8 @@ namespace Driftoid
                     }
                 }
             }
+
+            this.UpdateEffects(Time);
         }
 
         /// <summary>
@@ -147,12 +202,43 @@ namespace Driftoid
         /// </summary>
         public void TryDelink(Player Player, LinkedDriftoid Target)
         {
-            if (Target.LinkedParent != null)
+            if (Target.LinkedParent != null && Target.Reaction == null)
             {
                 if (this.HasLinkControl(Player, Target))
                 {
                     LinkedDriftoid._Delink(Target.LinkedParent, Target);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets the visuals in this area in the order they should be rendered.
+        /// </summary>
+        public IEnumerable<Visual> GetVisuals()
+        {
+            // Driftoids
+            foreach (LinkedDriftoid ld in this._Driftoids)
+            {
+                Visual v = ld.Visual;
+                if (v != null)
+                {
+                    yield return v;
+                }
+            }
+
+            // Driftoid linkers
+            foreach (LinkedDriftoid ld in this._Driftoids)
+            {
+                if (ld._LinkedParent != null)
+                {
+                    yield return LinkedDriftoid.GetLinkerVisual(ld._LinkedParent, ld);
+                }
+            }
+            
+            // Effects
+            foreach (Effect e in this._Effects)
+            {
+                yield return e;
             }
         }
 
@@ -187,6 +273,15 @@ namespace Driftoid
         }
 
         /// <summary>
+        /// Begins a reaction in the area.
+        /// </summary>
+        public void BeginReaction(Reaction Reaction)
+        {
+            Reaction._Initialize(this._Effects);
+            this._Reactions.Add(Reaction);
+        }
+
+        /// <summary>
         /// Issues or updates a drift command for the specified player.
         /// </summary>
         public void IssueCommand(Player Player, DriftCommand Command)
@@ -211,6 +306,16 @@ namespace Driftoid
         /// The driftoids that occupy the area.
         /// </summary>
         private List<LinkedDriftoid> _Driftoids;
+
+        /// <summary>
+        /// The effects in the area.
+        /// </summary>
+        private List<Effect> _Effects;
+
+        /// <summary>
+        /// The reactions in the area.
+        /// </summary>
+        private List<Reaction> _Reactions;
     }
 
     /// <summary>
