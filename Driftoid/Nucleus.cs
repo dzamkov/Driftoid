@@ -7,32 +7,30 @@ namespace Driftoid
     /// <summary>
     /// A high-mass player-controlled driftoid that can apply force to other driftoids.
     /// </summary>
-    public class NucleusKind : Kind
+    public class NucleusDriftoid : LinkedDriftoid
     {
-        public NucleusKind(Player Owner)
+        private NucleusDriftoid(Player Owner, MotionState MotionState, double Mass, double Radius) : base(MotionState, Mass, Radius)
         {
             this._Owner = Owner;
         }
 
         /// <summary>
-        /// A constructor for a driftoid of this kind.
+        /// Gets a constructor for a nucleus driftoid owned by the specified player.
         /// </summary>
-        public DriftoidConstructor Constructor
+        public static DriftoidConstructor GetConstructor(Player Owner)
         {
-            get
-            {
-                return new DriftoidConstructor(this, 3.0, 40.0);
-            }
+            return new DriftoidConstructor((MotionState MotionState, double Mass, double Radius) => new NucleusDriftoid(Owner, MotionState, Mass, Radius),
+                20.0, 3.0);
         }
 
-        public override void Draw(Driftoid Driftoid)
+        public override void Draw()
         {
             int texid;
             if (!_Textures.TryGetValue(this._Owner, out texid))
             {
                 _Textures[this._Owner] = texid = _CreateTexture(this._Owner);
             }
-            Driftoid.DrawTexture(texid, 1.0, 0.0);
+            this.DrawTexture(texid, 1.0, 0.0);
         }
 
         private static int _CreateTexture(Player Player)
@@ -88,12 +86,7 @@ namespace Driftoid
             }
         }
 
-        public override bool AllowLink(int Index, LinkedDriftoid This, LinkedDriftoid Other)
-        {
-            return true;
-        }
-
-        public override bool AllowChildLink(int Index, LinkedDriftoid This, LinkedDriftoid Child, LinkedDriftoid Other)
+        public override bool AllowLink(int Index, LinkedDriftoid Parent, LinkedDriftoid Child)
         {
             return true;
         }
@@ -117,7 +110,7 @@ namespace Driftoid
             }
         }
 
-        public override Player Owner
+        public Player Owner
         {
             get
             {

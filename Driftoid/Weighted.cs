@@ -6,22 +6,22 @@ namespace Driftoid
     /// <summary>
     /// The kind for a very heavy driftoid.
     /// </summary>
-    public class WeightedKind : Kind
+    public class WeightedDriftoid : LinkedDriftoid
     {
-        public WeightedKind(int Level)
+        private WeightedDriftoid(int Level, MotionState MotionState, double Mass, double Radius) : base(MotionState, Mass, Radius)
         {
             this._Level = Level;
         }
 
-        public override void Draw(Driftoid Driftoid)
+        public override void Draw()
         {
-            Driftoid.DrawTexture(Texture.ID, 1.0, 0.0);
+            this.DrawTexture(Texture.ID, 1.0, 0.0);
         }
 
         /// <summary>
         /// Gets the radius of a weighted driftoid at the specified level. Levels start at 0.
         /// </summary>
-        public double GetLevelRadius(int Level)
+        public static double GetLevelRadius(int Level)
         {
             return Math.Sqrt(GetLevelMass(Level)) / 2.0;
         }
@@ -29,28 +29,29 @@ namespace Driftoid
         /// <summary>
         /// Gets the mass of a weighted driftoid at the specified level.
         /// </summary>
-        public double GetLevelMass(int Level)
+        public static double GetLevelMass(int Level)
         {
             return 8.0 * (double)(Level + 1);
         }
 
         /// <summary>
-        /// A constructor for a driftoid of this kind.
+        /// Gets a constructor for a weighted driftoid of a certain level.
         /// </summary>
-        public DriftoidConstructor Constructor
+        public static DriftoidConstructor GetConstructor(int Level)
+        {
+            return new DriftoidConstructor((MotionState MotionState, double Mass, double Radius) => new WeightedDriftoid(Level, MotionState, Mass, Radius),
+                GetLevelMass(Level), GetLevelRadius(Level));
+        }
+
+        public override double BorderWidth
         {
             get
             {
-                return new DriftoidConstructor(this, GetLevelRadius(this._Level), GetLevelMass(this._Level));
+                return this._Radius * UnitBorderWidth * 2.0;    
             }
         }
 
-        public override double GetBorderWidth(Driftoid Driftoid)
-        {
-            return Driftoid.Radius * BorderWidth * 2.0;
-        }
-
-        public static double BorderWidth = 0.2;
+        public static double UnitBorderWidth = 0.2;
 
         private class _Drawer : Drawer
         {
@@ -66,7 +67,7 @@ namespace Driftoid
                 {
                     return Color.Transparent;
                 }
-                if (dis > 1.0 - BorderWidth * 2.0)
+                if (dis > 1.0 - UnitBorderWidth * 2.0)
                 {
                     return BorderColor;
                 }
@@ -87,7 +88,7 @@ namespace Driftoid
                 {
                     if (l > 0)
                     {
-                        return new WeightedKind(l - 1).Constructor;
+                        return WeightedDriftoid.GetConstructor(l - 1);
                     }
                     else
                     {

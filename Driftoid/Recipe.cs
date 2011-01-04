@@ -15,17 +15,6 @@ namespace Driftoid
         }
 
         /// <summary>
-        /// Gets the first kind in the structure.
-        /// </summary>
-        public Kind RootKind
-        {
-            get
-            {
-                return this._Driftoid.Kind;
-            }
-        }
-
-        /// <summary>
         /// Gets an array of child structures that make up this structure. The substructures are given in the order as they are connected.
         /// </summary>
         public Structure[] Substructures
@@ -40,6 +29,28 @@ namespace Driftoid
                     i++;
                 }
                 return structs;
+            }
+        }
+
+        /// <summary>
+        /// Gets the root driftoid in the structure.
+        /// </summary>
+        public LinkedDriftoid Root
+        {
+            get
+            {
+                return this._Driftoid;
+            }
+        }
+
+        /// <summary>
+        /// Gets a substructure at the specified index.
+        /// </summary>
+        public Structure this[int Index]
+        {
+            get
+            {
+                return new Structure(this._Driftoid._LinkedChildren[Index]);
             }
         }
 
@@ -59,10 +70,10 @@ namespace Driftoid
         /// </summary>
         public bool IsPrimitive(PrimitiveType Type)
         {
-            PrimitiveKind pk = this.RootKind as PrimitiveKind;
-            if (pk != null)
+            PrimitiveDriftoid pd = this._Driftoid as PrimitiveDriftoid;
+            if (pd != null)
             {
-                return pk.Type == Type;
+                return pd.Type == Type;
             }
             return false;
         }
@@ -162,11 +173,11 @@ namespace Driftoid
         /// </summary>
         public static bool Match(string PatternString, ref int StringIndex, Structure Structure, bool ReverseStructure, Structure[] Variables, ref int VariableIndex)
         {
-            PrimitiveKind pk = Structure.RootKind as PrimitiveKind;
-            if (pk != null)
+            PrimitiveDriftoid pd = Structure.Root as PrimitiveDriftoid;
+            if (pd != null)
             {
-                PrimitiveType type = pk.Type;
-                string sym = PrimitiveKind.GetSymbol(type);
+                PrimitiveType type = pd.Type;
+                string sym = PrimitiveDriftoid.GetSymbol(type);
                 if (PatternString[StringIndex] == '?')
                 {
                     Variables[VariableIndex] = Structure;

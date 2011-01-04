@@ -12,32 +12,25 @@ namespace Driftoid
     /// </summary>
     public abstract class Driftoid
     {
-        public Driftoid(DriftoidConstructorInfo Info)
+        public Driftoid(MotionState MotionState, double Mass, double Radius)
         {
-            this._Radius = Info.Radius;
-            this._MotionState = Info.MotionState;
-            this._Kind = Info.Kind;
-            this._Mass = Info.Mass;
+            this._MotionState = MotionState;
+            this._Mass = Mass;
+            this._Radius = Radius;
         }
 
         /// <summary>
         /// Creates a driftoid using a driftoid constructor.
         /// </summary>
-        public static LinkedDriftoid Make(DriftoidConstructor Constructor, MotionState MotionState)
+        public static Driftoid Make(DriftoidConstructor Constructor, MotionState MotionState)
         {
-            return new LinkedDriftoid(new DriftoidConstructorInfo()
-            {
-                Kind = Constructor.Kind,
-                Mass = Constructor.Mass,
-                Radius = Constructor.Radius,
-                MotionState = MotionState
-            });
+            return Constructor.Construct(MotionState, Constructor.Mass, Constructor.Radius);
         }
 
         /// <summary>
-        /// Creates a driftoid using a driftoid constructor.
+        /// Creates a driftoid at the specified position.
         /// </summary>
-        public static LinkedDriftoid Make(DriftoidConstructor Constructor, Vector Position)
+        public static Driftoid Make(DriftoidConstructor Constructor, Vector Position)
         {
             return Make(Constructor, new MotionState(Position));
         }
@@ -70,6 +63,14 @@ namespace Driftoid
             GL.Vertex2(1.0f, -1.0f); GL.TexCoord2(0f, 1f);
             GL.End();
             GL.PopMatrix();
+        }
+
+        /// <summary>
+        /// Draws the driftoid to the current graphics context.
+        /// </summary>
+        public virtual void Draw()
+        {
+
         }
 
         /// <summary>
@@ -157,17 +158,6 @@ namespace Driftoid
         }
 
         /// <summary>
-        /// Gets the kind of this driftoid.
-        /// </summary>
-        public Kind Kind
-        {
-            get
-            {
-                return this._Kind;
-            }
-        }
-
-        /// <summary>
         /// Applies a force, in mass * unit/second^2, to the driftoid.
         /// </summary>
         internal void _ApplyForce(double Time, Vector Force)
@@ -213,7 +203,6 @@ namespace Driftoid
         internal double _Radius;
         internal double _Mass;
         internal MotionState _MotionState;
-        internal Kind _Kind;
     }
 
     /// <summary>
@@ -295,51 +284,20 @@ namespace Driftoid
     /// </summary>
     public class DriftoidConstructor
     {
-        public DriftoidConstructor()
+        public DriftoidConstructor(ConstructFunc Construct, double Mass, double Radius)
         {
-
-        }
-
-        public DriftoidConstructor(Kind Kind)
-        {
-            this.Kind = Kind;
-        }
-
-        public DriftoidConstructor(Kind Kind, double Radius, double Mass)
-        {
-            this.Kind = Kind;
+            this.Construct = Construct;
             this.Radius = Radius;
             this.Mass = Mass;
         }
 
-        public Kind Kind;
+        /// <summary>
+        /// A function that can create a driftoid of a certain type given its motion state.
+        /// </summary>
+        public delegate Driftoid ConstructFunc(MotionState MotionState, double Mass, double Radius);
+
+        public ConstructFunc Construct;
         public double Radius = 1.0;
         public double Mass = 1.0;
-    }
-
-    /// <summary>
-    /// Parameter for construction of driftoids.
-    /// </summary>
-    public class DriftoidConstructorInfo
-    {
-        /// <summary>
-        /// Initial motion state of the driftoid.
-        /// </summary>
-        public MotionState MotionState;
-
-        /// <summary>
-        /// The initial mass of the driftoid.
-        /// </summary>
-        public double Mass = 1.0;
-
-        /// <summary>
-        /// The initial radius of the driftoid.
-        /// </summary>
-        public double Radius = 1.0;
-
-        /// <summary>
-        /// The kind of this driftoid.
-        /// </summary>
-        public Kind Kind = null;
     }
 }

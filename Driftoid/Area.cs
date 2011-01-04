@@ -72,7 +72,7 @@ namespace Driftoid
             // Drift commands
             foreach (LinkedDriftoid dr in this._Driftoids)
             {
-                NucleusKind ndr = dr.Kind as NucleusKind;
+                NucleusDriftoid ndr = dr as NucleusDriftoid;
                 if (ndr != null)
                 {
                     DriftCommand dc;
@@ -87,7 +87,7 @@ namespace Driftoid
             List<LinkedDriftoid> toremove = new List<LinkedDriftoid>();
             foreach (LinkedDriftoid ldr in this._Driftoids)
             {
-                ldr._Kind = ldr.Kind.OnUpdate(ldr, Time, new _DriftoidInterface() { Driftoid = ldr, ToDelete = toremove });
+                ldr.OnUpdate(Time, new _DriftoidInterface() { Driftoid = ldr, ToDelete = toremove });
             }
             foreach (LinkedDriftoid ldr in toremove)
             {
@@ -164,7 +164,7 @@ namespace Driftoid
             LinkedDriftoid cur = Target;
             while (cur != null)
             {
-                NucleusKind ndr = cur.Kind as NucleusKind;
+                NucleusDriftoid ndr = cur as NucleusDriftoid;
                 if (ndr != null)
                 {
                     if (ndr.Owner == Player)

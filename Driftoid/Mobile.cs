@@ -6,22 +6,20 @@ namespace Driftoid
     /// <summary>
     /// A kind of driftoid that can propel itself.
     /// </summary>
-    public class MobileKind : Kind
+    public class MobileDriftoid : LinkedDriftoid
     {
-        public MobileKind(int EngineLevel)
+        public MobileDriftoid(int EngineLevel, MotionState MotionState, double Mass, double Radius) : base(MotionState, Mass, Radius)
         {
             this._EngineLevel = EngineLevel;
         }
 
         /// <summary>
-        /// A constructor for a driftoid of this kind.
+        /// Gets a constructor for a mobile driftoid of a certain engine level.
         /// </summary>
-        public DriftoidConstructor Constructor
+        public static DriftoidConstructor GetConstructor(int EngineLevel)
         {
-            get
-            {
-                return new DriftoidConstructor(this, 1.0, 1.0);
-            }
+            return new DriftoidConstructor((MotionState MotionState, double Mass, double Radius) => new MobileDriftoid(EngineLevel, MotionState, Mass, Radius),
+                1.0, 1.0);
         }
 
         private class _Recipe : Recipe
@@ -35,7 +33,7 @@ namespace Driftoid
                     int el;
                     if (Recipe.MatchTerminatedChain(dir, "C(N?N(OO))", "H", vars[1], out el))
                     {
-                        return new MobileKind(el).Constructor;
+                        return MobileDriftoid.GetConstructor(el);
                     }
                 }
                 return null;

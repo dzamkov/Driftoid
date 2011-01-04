@@ -45,7 +45,6 @@
     <Compile Include="Color.cs" />
     <Compile Include="Drawer.cs" />
     <Compile Include="Driftoid.cs" />
-    <Compile Include="Kind.cs" />
     <Compile Include="LinkedDriftoid.cs" />
     <Compile Include="Mobile.cs" />
     <Compile Include="Nucleus.cs" />

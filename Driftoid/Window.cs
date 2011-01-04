@@ -29,19 +29,19 @@ namespace Driftoid
                 {
                     this._Area.Spawn(
                         Driftoid.Make(
-                            PrimitiveKind.Get((PrimitiveType)y).Constructor, 
-                            new Vector((double)x * 3.0, (double)y * 3.0 - 7.5)));
+                            PrimitiveDriftoid.GetConstructor((PrimitiveType)y), 
+                            new Vector((double)x * 3.0, (double)y * 3.0 - 7.5)) as LinkedDriftoid);
                 }
             }
 
             this._Area.Spawn(
                 Driftoid.Make(
-                    new NucleusKind(this._Player = new Player(Color.RGB(1.0, 0.0, 0.0))).Constructor,
-                    new Vector(-8.0, 0.0)));
+                    NucleusDriftoid.GetConstructor(this._Player = new Player(Color.RGB(1.0, 0.0, 0.0))),
+                    new Vector(-8.0, 0.0)) as LinkedDriftoid);
             this._Area.Spawn(
                 Driftoid.Make(
-                    new WeightedKind(0).Constructor,
-                    new Vector(-8.0, 7.0)));
+                    WeightedDriftoid.GetConstructor(0),
+                    new Vector(-8.0, 7.0)) as LinkedDriftoid);
             this._Starfield = Starfield.CreateDefault(512, 5);
 
             this._View = new View(new Vector(), 0.0, 0.1);
@@ -108,18 +108,13 @@ namespace Driftoid
             Driftoid.SetupDraw();
             foreach (LinkedDriftoid d in this._Area.Driftoids)
             {
-                d.Kind.Draw(d);
+                d.Draw();
             }
             foreach (LinkedDriftoid ld in this._Area.Driftoids)
             {
                 if (ld != null && ld.LinkedParent != null)
                 {
-                    double vis = ld.Kind.LinkVisibility;
-                    if (vis > 0.0)
-                    {
-                        GL.Color4(1.0, 1.0, 1.0, vis);
-                        LinkedDriftoid.DrawLinker(ld.LinkedParent, ld);
-                    }
+                    LinkedDriftoid.DrawLinker(ld.LinkedParent, ld);
                 }
             }
 

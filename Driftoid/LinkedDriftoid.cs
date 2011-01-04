@@ -9,12 +9,83 @@ namespace Driftoid
     /// <summary>
     /// A kind of driftoid that can accept and be involved in tree-like links.
     /// </summary>
-    public class LinkedDriftoid : Driftoid
+    public abstract class LinkedDriftoid : Driftoid
     {
-        public LinkedDriftoid(DriftoidConstructorInfo Info)
-            : base(Info)
+        public LinkedDriftoid(MotionState MotionState, double Mass, double Radius)
+            : base(MotionState, Mass, Radius)
         {
             this._LinkedChildren = new List<LinkedDriftoid>();
+        }
+
+        /// <summary>
+        /// Updates the state of the driftoid as time passes.
+        /// </summary>
+        public virtual void OnUpdate(double Time, IDriftoidInterface Interface)
+        {
+
+        }
+
+        /// <summary>
+        /// Called when the parent of this driftoid delinks from it.
+        /// </summary>
+        public virtual void OnParentDelink(LinkedDriftoid Parent)
+        {
+
+        }
+
+        /// <summary>
+        /// Called when a child is delinked from this driftoid.
+        /// </summary>
+        public virtual void OnChildDelink(LinkedDriftoid Child)
+        {
+
+        }
+
+        /// <summary>
+        /// Called when this is added as a child of another driftoid.
+        /// </summary>
+        public virtual void OnParentLink(LinkedDriftoid Parent)
+        {
+
+        }
+
+        /// <summary>
+        /// Called when this acquires a new child driftoid.
+        /// </summary>
+        public virtual void OnChildLink(int Index, LinkedDriftoid Child)
+        {
+
+        }
+
+        /// <summary>
+        /// Gets if a link from the parent (which is a descendant of this driftoid) to the specified child is allowed.
+        /// </summary>
+        public virtual bool AllowLink(int Index, LinkedDriftoid Parent, LinkedDriftoid Child)
+        {
+            if (this._LinkedParent != null)
+            {
+                return this._LinkedParent.AllowLink(Index, Parent, Child);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Gets if a link to the specified parent as a child is allowed.
+        /// </summary>
+        public virtual bool AllowParentLink(LinkedDriftoid Parent)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Gets the width of the border around the driftoid, for linking purposes.
+        /// </summary>
+        public virtual double BorderWidth
+        {
+            get
+            {
+                return 0.3 * this._Radius;
+            }
         }
 
         /// <summary>
@@ -38,7 +109,7 @@ namespace Driftoid
         /// </summary>
         public static void BeginReaction(Reaction Reaction)
         {
-            LinkedDriftoid target = Reaction.Target;
+            /*LinkedDriftoid target = Reaction.Target;
             if (target._LinkedParent != null)
             {
                 foreach (LinkedDriftoid ldr in target.Descendants)
@@ -46,7 +117,7 @@ namespace Driftoid
                     ldr._Kind = new ReactionWarmupKind(ldr.Kind.ReactionTime, null, ldr.Kind);
                 }
                 target._Kind = new ReactionWarmupKind(target.Kind.ReactionTime, Reaction.Product, target.Kind);
-            }
+            }*/
         }
 
         /// <summary>
@@ -157,7 +228,7 @@ namespace Driftoid
             _LinkerKey lk = new _LinkerKey()
             {
                 ChildRadius = Child.Radius,
-                ChildBorderWidth = Child.Kind.GetBorderWidth(Child)
+                ChildBorderWidth = Child.BorderWidth
             };
             _LinkerTexture lt;
             if (!_LinkerTextures.TryGetValue(lk, out lt))
@@ -317,7 +388,7 @@ namespace Driftoid
                 }
             }
 
-            return Child.Kind.AllowLink(Child, this) && this.Kind.AllowLink(Index, this, Child);
+            return Child.AllowParentLink(this) && this.AllowLink(Index, this, Child);
         }
 
         /// <summary>
@@ -354,8 +425,8 @@ namespace Driftoid
         {
             Parent._LinkedChildren.Remove(Child);
             Child._LinkedParent = null;
-            Parent._Kind = Parent.Kind.OnChildDelink(Parent, Child);
-            Child._Kind = Child.Kind.OnParentDelink(Child, Parent);
+            Parent.OnChildDelink(Child);
+            Child.OnParentDelink(Parent);
         }
 
         /// <summary>
@@ -408,8 +479,8 @@ namespace Driftoid
             Child._LinkedParent = this;
 
             // Events
-            this._Kind = this.Kind.OnChildLink(Index, this, Child);
-            Child._Kind = Child.Kind.OnParentLink(Child, this);
+            this.OnChildLink(Index, Child);
+            Child.OnParentLink(this);
         }
 
         internal LinkedDriftoid _LinkedParent;
