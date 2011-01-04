@@ -13,9 +13,12 @@ namespace Driftoid
             this._Level = Level;
         }
 
-        public override void Draw()
+        public override Visual Visual
         {
-            this.DrawTexture(Texture.ID, 1.0, 0.0);
+            get
+            {
+                return new SimpleVisual(Texture.ID, this);
+            }
         }
 
         /// <summary>

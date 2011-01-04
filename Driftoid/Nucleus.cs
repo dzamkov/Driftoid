@@ -23,14 +23,17 @@ namespace Driftoid
                 20.0, 3.0);
         }
 
-        public override void Draw()
+        public override Visual Visual
         {
-            int texid;
-            if (!_Textures.TryGetValue(this._Owner, out texid))
+            get
             {
-                _Textures[this._Owner] = texid = _CreateTexture(this._Owner);
+                int texid;
+                if (!_Textures.TryGetValue(this._Owner, out texid))
+                {
+                    _Textures[this._Owner] = texid = _CreateTexture(this._Owner);
+                }
+                return new SimpleVisual(texid, this);
             }
-            this.DrawTexture(texid, 1.0, 0.0);
         }
 
         private static int _CreateTexture(Player Player)

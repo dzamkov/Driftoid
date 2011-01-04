@@ -27,14 +27,17 @@ namespace Driftoid
             this._Type = Type;
         }
 
-        public override void Draw()
+        public override Visual Visual
         {
-            int texid;
-            if (!_Textures.TryGetValue(this._Type, out texid))
+            get
             {
-                _Textures[this._Type] = texid = _Visuals[(int)this._Type].CreateTexture((int)this._Type);
+                int texid;
+                if (!_Textures.TryGetValue(this._Type, out texid))
+                {
+                    _Textures[this._Type] = texid = _Visuals[(int)this._Type].CreateTexture((int)this._Type);
+                }
+                return new SimpleVisual(texid, this);
             }
-            this.DrawTexture(texid, 1.0, 0.0);
         }
 
         /// <summary>

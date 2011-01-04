@@ -57,6 +57,7 @@
     <Compile Include="Texture.cs" />
     <Compile Include="Vector.cs" />
     <Compile Include="View.cs" />
+    <Compile Include="Visual.cs" />
     <Compile Include="Weighted.cs" />
     <Compile Include="Window.cs" />
   </ItemGroup>

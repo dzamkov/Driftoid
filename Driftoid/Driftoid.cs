@@ -36,41 +36,14 @@ namespace Driftoid
         }
 
         /// <summary>
-        /// Prepares the current GL context for drawing. Should be called after setting up the view.
+        /// Gets a static visual which can be used to draw the driftoid.
         /// </summary>
-        public static void SetupDraw()
+        public virtual Visual Visual
         {
-            GL.MatrixMode(MatrixMode.Texture);
-            GL.LoadIdentity();
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.Color4(1.0, 1.0, 1.0, 1.0);
-        }
-
-        /// <summary>
-        /// Draws a texture relative to this driftoid.
-        /// </summary>
-        public void DrawTexture(int TextureID, double Size, double Angle)
-        {
-            Texture.Bind2D(TextureID);
-            GL.PushMatrix();
-            GL.Translate(this._MotionState.Position.X, this._MotionState.Position.Y, 0.0);
-            GL.Scale(this._Radius * Size, this._Radius * Size, 1.0);
-            GL.Rotate(this._MotionState.Angle + Angle, 0.0, 0.0, 1.0);
-            GL.Begin(BeginMode.Quads);
-            GL.Vertex2(-1.0f, -1.0f); GL.TexCoord2(0f, 0f);
-            GL.Vertex2(-1.0f, 1.0f); GL.TexCoord2(1f, 0f);
-            GL.Vertex2(1.0f, 1.0f); GL.TexCoord2(1f, 1f);
-            GL.Vertex2(1.0f, -1.0f); GL.TexCoord2(0f, 1f);
-            GL.End();
-            GL.PopMatrix();
-        }
-
-        /// <summary>
-        /// Draws the driftoid to the current graphics context.
-        /// </summary>
-        public virtual void Draw()
-        {
-
+            get
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -143,6 +116,17 @@ namespace Driftoid
             get
             {
                 return this._MotionState.Position;
+            }
+        }
+
+        /// <summary>
+        /// Gets the angle of the driftoid.
+        /// </summary>
+        public double Angle
+        {
+            get
+            {
+                return this._MotionState.Angle;
             }
         }
 

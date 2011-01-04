@@ -105,10 +105,14 @@ namespace Driftoid
             this._Starfield.Draw(this._View, aspect);
             this._View.Setup(aspect);
 
-            Driftoid.SetupDraw();
+            Visual.SetupDraw();
             foreach (LinkedDriftoid d in this._Area.Driftoids)
             {
-                d.Draw();
+                Visual v = d.Visual;
+                if (v != null)
+                {
+                    v.Draw();
+                }
             }
             foreach (LinkedDriftoid ld in this._Area.Driftoids)
             {
