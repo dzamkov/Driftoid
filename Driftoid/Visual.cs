@@ -2,6 +2,7 @@
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 
 
@@ -46,6 +47,64 @@ namespace Driftoid
             GL.End();
             GL.PopMatrix();
         }
+
+        /// <summary>
+        /// A drawer for a solid driftoid.
+        /// </summary>
+        public class SolidDrawer : Drawer
+        {
+            public override Color AtPoint(Vector Point)
+            {
+                double dis = (Point - new Vector(0.5, 0.5)).Length;
+                double trans = 0.5 - BorderSize;
+                if (dis > 0.5)
+                {
+                    return Color.Transparent;
+                }
+                if (dis > trans)
+                {
+                    return this.BorderColor;
+                }
+                return this.InteriorColor;
+            }
+
+            public Color BorderColor;
+            public Color InteriorColor;
+            public double BorderSize;
+        }
+
+        /// <summary>
+        /// Draws a blank circle to the specified graphics context.
+        /// </summary>
+        public static void DrawSolid(
+            Bitmap Bitmap, double BorderSize,
+            Color BorderColor, Color InteriorColor)
+        {
+            new SolidDrawer()
+            {
+                BorderColor = BorderColor,
+                InteriorColor = InteriorColor,
+                BorderSize = BorderSize
+            }.Draw(Bitmap);
+        }
+
+        private class _MaskDrawer : Drawer
+        {
+            public override Color AtPoint(Vector Point)
+            {
+                double dis = (Point - new Vector(0.5, 0.5)).Length;
+                if (dis <= 0.5)
+                {
+                    return Color.RGB(1.0, 1.0, 1.0);
+                }
+                return Color.RGBA(1.0, 1.0, 1.0, 0.0);
+            }
+        }
+
+        /// <summary>
+        /// A texture for a circular mask (using alpha values) in the shape of driftoids.
+        /// </summary>
+        public static readonly Texture Mask = Texture.Define(new _MaskDrawer(), 1.0, 0.2);
     }
 
     /// <summary>
@@ -86,17 +145,6 @@ namespace Driftoid
             this._Center = Center;
             this._Size = Size;
             this._Angle = Angle;
-        }
-
-        /// <summary>
-        /// Copies for the visual from a driftoid.
-        /// </summary>
-        public SimpleVisual(int TextureID, Driftoid Driftoid)
-        {
-            this._ID = TextureID;
-            this._Center = Driftoid.Position;
-            this._Size = Driftoid.Radius;
-            this._Angle = Driftoid.Angle;
         }
 
         public override void Draw()

@@ -18,35 +18,21 @@ namespace Driftoid
     }
 
     /// <summary>
-    /// A kind for a primitive/element driftoid. Primitives have very little special properties.
+    /// Manages primitive driftoids.
     /// </summary>
-    public sealed class PrimitiveDriftoid : LinkedDriftoid
+    public static class Primitive
     {
-        private PrimitiveDriftoid(PrimitiveType Type, MotionState MotionState, double Mass, double Radius) : base(MotionState, Mass, Radius)
-        {
-            this._Type = Type;
-        }
-
-        public override Visual Visual
-        {
-            get
-            {
-                int texid;
-                if (!_Textures.TryGetValue(this._Type, out texid))
-                {
-                    _Textures[this._Type] = texid = _Visuals[(int)this._Type].CreateTexture((int)this._Type);
-                }
-                return new SimpleVisual(texid, this);
-            }
-        }
-
         /// <summary>
         /// Gets a constructor for a certain type of primitive driftoid.
         /// </summary>
-        public static DriftoidConstructor GetConstructor(PrimitiveType Type)
+        public static EntityConstructor<MotionState> GetConstructor(PrimitiveType Type)
         {
-            return new DriftoidConstructor((MotionState MotionState, double Mass, double Radius) => new PrimitiveDriftoid(Type, MotionState, Mass, Radius),
-                _Masses[(int)Type], 1.0);
+            return delegate(MotionState MotionState)
+            {
+                Entity e = new Entity();
+                e.LinkComponent(new PhysicsComponent(_Masses[(int)Type], 1.0, MotionState));
+                e.LinkComponent(new SimpleDriftoidVisualComponent(GetTexture(Type)));
+            };
         }
 
         /// <summary>
@@ -138,22 +124,6 @@ namespace Driftoid
             return _MaxLinks[(int)Type];
         }
 
-        public override bool AllowLink(int Index, LinkedDriftoid Parent, LinkedDriftoid Child)
-        {
-            if (Parent == this)
-            {
-                if (this.LinkedChildrenAmount < GetMaxLinks(this.Type))
-                {
-                    return base.AllowLink(Index, Parent, Child);
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return base.AllowLink(Index, Parent, Child);
-        }
-
         /// <summary>
         /// Gets the symbol for the specified primitive type.
         /// </summary>
@@ -226,21 +196,21 @@ namespace Driftoid
         };
 
         /// <summary>
+        /// Gets a texture id for a texture of a certain primitive type.
+        /// </summary>
+        public static int GetTexture(PrimitiveType Type)
+        {
+            int texid;
+            if (!_Textures.TryGetValue(Type, out texid))
+            {
+                _Textures[Type] = texid = _Visuals[(int)Type].CreateTexture((int)Type);
+            }
+            return texid;
+        }
+
+        /// <summary>
         /// A cache of textures used for primitive driftoids.
         /// </summary>
         private static readonly Dictionary<PrimitiveType, int> _Textures = new Dictionary<PrimitiveType, int>();
-
-        /// <summary>
-        /// Gets the primitive type of this kind.
-        /// </summary>
-        public PrimitiveType Type
-        {
-            get
-            {
-                return this._Type;
-            }
-        }
-
-        private PrimitiveType _Type;
     }
 }

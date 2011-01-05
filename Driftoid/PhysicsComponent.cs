@@ -1,107 +1,18 @@
-﻿using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
-using System;
-using System.Drawing;
-using System.Drawing.Imaging;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Driftoid
 {
     /// <summary>
-    /// A circular, drifting object.
+    /// An interface to a circular physical object in a physical location within a world.
     /// </summary>
-    public abstract class Driftoid
+    public sealed class PhysicsComponent : Component
     {
-        public Driftoid(MotionState MotionState, double Mass, double Radius)
+        public PhysicsComponent(double Mass, double Radius, MotionState MotionState)
         {
-            this._MotionState = MotionState;
             this._Mass = Mass;
             this._Radius = Radius;
-        }
-
-        private class _MaskDrawer : Drawer
-        {
-            public override Color AtPoint(Vector Point)
-            {
-                double dis = (Point - new Vector(0.5, 0.5)).Length;
-                if (dis <= 0.5)
-                {
-                    return Color.RGB(1.0, 1.0, 1.0);
-                }
-                return Color.RGBA(1.0, 1.0, 1.0, 0.0);
-            }
-        }
-
-        /// <summary>
-        /// A texture for a circular mask (using alpha values) in the shape of driftoids.
-        /// </summary>
-        public static readonly Texture Mask = Texture.Define(new _MaskDrawer(), 1.0, 0.2);
-
-        /// <summary>
-        /// Creates a driftoid using a driftoid constructor.
-        /// </summary>
-        public static Driftoid Make(DriftoidConstructor Constructor, MotionState MotionState)
-        {
-            return Constructor.Construct(MotionState, Constructor.Mass, Constructor.Radius);
-        }
-
-        /// <summary>
-        /// Creates a driftoid at the specified position.
-        /// </summary>
-        public static Driftoid Make(DriftoidConstructor Constructor, Vector Position)
-        {
-            return Make(Constructor, new MotionState(Position));
-        }
-
-        /// <summary>
-        /// Gets a static visual which can be used to draw the driftoid.
-        /// </summary>
-        public virtual Visual Visual
-        {
-            get
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// A drawer for a solid driftoid.
-        /// </summary>
-        public class SolidDrawer : Drawer
-        {
-            public override Color AtPoint(Vector Point)
-            {
-                double dis = (Point - new Vector(0.5, 0.5)).Length;
-                double trans = 0.5 - BorderSize;
-                if (dis > 0.5)
-                {
-                    return Color.Transparent;
-                }
-                if (dis > trans)
-                {
-                    return this.BorderColor;
-                }
-                return this.InteriorColor;
-            }
-
-            public Color BorderColor;
-            public Color InteriorColor;
-            public double BorderSize;
-        }
-
-        /// <summary>
-        /// Draws a blank circle to the specified graphics context.
-        /// </summary>
-        public static void DrawSolid(
-            Bitmap Bitmap, double BorderSize, 
-            Color BorderColor, Color InteriorColor)
-        {
-            new SolidDrawer()
-            {
-                BorderColor = BorderColor,
-                InteriorColor = InteriorColor,
-                BorderSize = BorderSize
-            }.Draw(Bitmap);
+            this._MotionState = MotionState;
         }
 
         /// <summary>
@@ -177,9 +88,9 @@ namespace Driftoid
         }
 
         /// <summary>
-        /// Responds to the collision of two driftoids.
+        /// Responds (by correcting positions and velocities) to the collision of two driftoids.
         /// </summary>
-        internal static void _CollisionResponse(Driftoid A, Driftoid B, Vector Difference, double Distance, double Factor)
+        internal static void _CollisionResponse(PhysicsComponent A, PhysicsComponent B, Vector Difference, double Distance, double Factor)
         {
             double trad = A.Radius + B.Radius;
             Vector ncol = Difference * (1.0 / Difference.Length);
@@ -202,9 +113,9 @@ namespace Driftoid
             }
         }
 
-        internal double _Radius;
-        internal double _Mass;
-        internal MotionState _MotionState;
+        private double _Mass;
+        private double _Radius;
+        private MotionState _MotionState;
     }
 
     /// <summary>
@@ -279,27 +190,5 @@ namespace Driftoid
         /// Spin of the driftoid in radians per second.
         /// </summary>
         public double AngularVelocity;
-    }
-
-    /// <summary>
-    /// Describes the initial properties of a driftoid, allowing the creation of one with any motion state.
-    /// </summary>
-    public class DriftoidConstructor
-    {
-        public DriftoidConstructor(ConstructFunc Construct, double Mass, double Radius)
-        {
-            this.Construct = Construct;
-            this.Radius = Radius;
-            this.Mass = Mass;
-        }
-
-        /// <summary>
-        /// A function that can create a driftoid of a certain type given its motion state.
-        /// </summary>
-        public delegate Driftoid ConstructFunc(MotionState MotionState, double Mass, double Radius);
-
-        public ConstructFunc Construct;
-        public double Radius = 1.0;
-        public double Mass = 1.0;
     }
 }
